@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>花蓮差旅費預算 | COE Agent Travel Budget</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.js" integrity="sha384-iU8HYtnGQ8Cy4zl7gbNMOhsDTTKX02BTXptVP/vqAWIaTfM7isw76iyZCsjL2eVi" crossorigin="anonymous"></script>
+  <style>
+    :root { color-scheme: light; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f6fa;
+      color: #1a1d2e;
+      min-height: 100vh;
+    }
+    :root {
+      --green:  #059652;
+      --blue:   #1a5fd4;
+      --orange: #d4541a;
+      --purple: #7c3aed;
+      --teal:   #0f9488;
+      --card-bg:     #ffffff;
+      --card-border: #e2e5ef;
+      --text-muted:  #6b7280;
+      --page-bg:     #f5f6fa;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      background: linear-gradient(135deg, #1a1d2e 0%, #2d3250 100%);
+      padding: 28px 40px 24px;
+    }
+    .header-top { display: flex; align-items: center; gap: 14px; margin-bottom: 8px; }
+    .uber-badge {
+      background: #06C167; color: #000;
+      font-weight: 800; font-size: 11px; letter-spacing: 1.5px;
+      padding: 4px 10px; border-radius: 4px;
+    }
+    .header h1 { font-size: 20px; font-weight: 700; color: #fff; }
+    .header-meta { color: rgba(255,255,255,0.6); font-size: 13px; margin-top: 4px; }
+    .header-meta span { color: #06C167; font-weight: 500; }
+
+    /* ── MAIN ── */
+    .main { padding: 28px 40px; max-width: 1280px; margin: 0 auto; }
+
+    /* ── SECTION TITLES ── */
+    .section-title {
+      font-size: 11px; font-weight: 700; letter-spacing: 1.4px;
+      color: var(--text-muted); text-transform: uppercase;
+      margin-bottom: 14px; padding-bottom: 8px;
+      border-bottom: 2px solid var(--card-border);
+    }
+
+    /* ── SUMMARY CARDS ── */
+    .cards-grid {
+      display: grid; grid-template-columns: repeat(5, 1fr);
+      gap: 12px; margin-bottom: 28px;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px; padding: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .card-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.8px;
+      color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;
+    }
+    .card-value { font-size: 22px; font-weight: 800; color: #1a1d2e; line-height: 1; }
+    .card-value span { font-size: 11px; font-weight: 500; color: var(--text-muted); margin-left: 2px; }
+    .card-sub  { font-size: 11px; color: var(--text-muted); margin-top: 5px; }
+    .card.green  { border-top: 3px solid var(--green); }
+    .card.blue   { border-top: 3px solid var(--blue); }
+    .card.orange { border-top: 3px solid var(--orange); }
+    .card.purple { border-top: 3px solid var(--purple); }
+    .card.teal   { border-top: 3px solid var(--teal); }
+    .card.green  .card-value { color: var(--green); }
+
+    /* ── SLIDER CONTROLS ── */
+    .controls-card {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: 10px; padding: 20px 24px; margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .controls-header { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+    .controls-header h3 { font-size: 14px; font-weight: 700; color: #1a1d2e; }
+    .badge-live {
+      background: rgba(5,150,82,0.1); color: var(--green);
+      border: 1px solid rgba(5,150,82,0.25);
+      font-size: 10px; font-weight: 700; letter-spacing: 0.8px;
+      padding: 2px 8px; border-radius: 20px;
+    }
+    .sliders-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+    .slider-row label {
+      display: flex; justify-content: space-between;
+      font-size: 12px; color: #374151; margin-bottom: 8px; font-weight: 500;
+    }
+    .slider-row label strong { font-size: 14px; font-weight: 800; }
+    .slider-row label strong.green  { color: var(--green); }
+    .slider-row label strong.teal   { color: var(--teal); }
+    .slider-row label strong.purple { color: var(--purple); }
+    input[type=range] {
+      width: 100%; height: 4px; -webkit-appearance: none;
+      border-radius: 4px; outline: none; cursor: pointer;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 16px; height: 16px;
+      border-radius: 50%; cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    #accomSlider::-webkit-slider-thumb { background: var(--green); }
+    #trainSlider::-webkit-slider-thumb { background: var(--purple); }
+    #motoSlider::-webkit-slider-thumb  { background: var(--teal); }
+    .slider-hints {
+      display: flex; justify-content: space-between;
+      font-size: 10px; color: var(--text-muted); margin-top: 4px;
+    }
+
+    /* ── BIKE TOGGLE ── */
+    .bike-toggle-row { display: flex; align-items: center; gap: 10px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--card-border); }
+    .bike-toggle-label { font-size: 12px; color: #374151; font-weight: 500; }
+    .toggle-btn {
+      padding: 5px 16px; border-radius: 20px; border: 1px solid var(--card-border);
+      background: #f9fafb; color: var(--text-muted);
+      font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s;
+    }
+    .toggle-btn.active { background: rgba(15,148,136,0.1); color: var(--teal); border-color: rgba(15,148,136,0.35); }
+    .toggle-btn:hover:not(.active) { background: #f3f4f6; }
+    #bikeCostHint { font-size: 11px; color: var(--text-muted); }
+
+    /* ── MONTHLY TABLE ── */
+    .table-card {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: 10px; overflow: hidden; margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      background: #f9fafb; padding: 12px 14px; text-align: right;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.8px;
+      color: var(--text-muted); text-transform: uppercase; white-space: nowrap;
+      border-bottom: 1px solid var(--card-border);
+    }
+    thead th:first-child { text-align: left; }
+    tbody tr { border-top: 1px solid #f0f1f5; }
+    tbody tr:hover { background: #fafbff; }
+    tbody td { padding: 13px 14px; text-align: right; font-size: 13px; color: #374151; }
+    tbody td:first-child { text-align: left; font-weight: 700; color: #1a1d2e; font-size: 13px; }
+    tfoot td {
+      padding: 13px 14px; text-align: right; font-size: 13px; font-weight: 700;
+      color: var(--green); border-top: 2px solid var(--card-border); background: #f9fafb;
+    }
+    tfoot td:first-child { text-align: left; color: #1a1d2e; }
+    .pill {
+      display: inline-block; background: rgba(5,150,82,0.1); color: var(--green);
+      border: 1px solid rgba(5,150,82,0.2); border-radius: 20px;
+      font-size: 10px; padding: 1px 7px; font-weight: 600; margin-left: 4px;
+    }
+    .pill.orange { background: rgba(212,84,26,0.1); color: var(--orange); border-color: rgba(212,84,26,0.2); }
+    .pill.blue   { background: rgba(26,95,212,0.1); color: var(--blue);   border-color: rgba(26,95,212,0.2); }
+
+    /* ── CHARTS ── */
+    .charts-grid {
+      display: grid; grid-template-columns: 1.6fr 1fr;
+      gap: 16px; margin-bottom: 24px;
+    }
+    .chart-card {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: 10px; padding: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .chart-card h3 { font-size: 13px; font-weight: 700; color: #1a1d2e; margin-bottom: 16px; }
+
+    /* ── MOTO INFO ── */
+    .moto-info-card {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-left: 3px solid var(--teal); border-radius: 10px;
+      padding: 20px 24px; margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .moto-info-card h3 { font-size: 14px; font-weight: 700; color: #1a1d2e; margin-bottom: 16px; }
+    .moto-shops-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+    .moto-shop {
+      background: #f9fafb; border-radius: 8px; padding: 12px 14px;
+      border: 1px solid var(--card-border);
+    }
+    .moto-shop-name { font-size: 12px; font-weight: 700; color: #1a1d2e; margin-bottom: 3px; }
+    .moto-shop-detail { font-size: 11px; color: var(--text-muted); line-height: 1.5; }
+    .moto-shop-price { font-size: 15px; font-weight: 800; color: var(--teal); margin-top: 6px; }
+    .moto-tip {
+      background: rgba(15,148,136,0.06); border: 1px solid rgba(15,148,136,0.2);
+      border-radius: 8px; padding: 12px 16px; font-size: 12px; color: #374151; line-height: 1.6;
+    }
+
+    /* ── TRAIN INFO ── */
+    .train-card {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: 10px; padding: 18px 22px; margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .train-card h3 { font-size: 14px; font-weight: 700; color: #1a1d2e; margin-bottom: 14px; }
+    .train-route {
+      display: flex; align-items: center; gap: 12px;
+      background: #f9fafb; border-radius: 8px; padding: 14px 18px; margin-bottom: 10px;
+      border: 1px solid var(--card-border);
+    }
+    .train-station { text-align: center; }
+    .train-station strong { font-size: 16px; font-weight: 800; color: #1a1d2e; display: block; }
+    .train-station span  { font-size: 11px; color: var(--text-muted); }
+    .train-arrow { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+    .train-arrow-line { color: var(--green); font-size: 18px; }
+    .train-duration { font-size: 11px; color: var(--text-muted); }
+    .train-price-row { display: flex; gap: 10px; }
+    .train-price-item {
+      flex: 1; background: #f9fafb; border-radius: 8px; padding: 11px 14px;
+      display: flex; justify-content: space-between; align-items: center;
+      border: 1px solid var(--card-border);
+    }
+    .train-price-label { font-size: 11px; color: var(--text-muted); }
+    .train-price-value { font-size: 15px; font-weight: 700; color: var(--green); }
+
+    /* ── TIMELINE ── */
+    .timeline-card {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: 10px; padding: 20px 24px; margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .timeline-card h3 { font-size: 14px; font-weight: 700; color: #1a1d2e; margin-bottom: 18px; }
+    .timeline { display: flex; position: relative; }
+    .timeline::before {
+      content: ''; position: absolute; top: 20px; left: 20px; right: 20px;
+      height: 2px; background: var(--card-border); z-index: 0;
+    }
+    .tl-item { flex: 1; text-align: center; position: relative; z-index: 1; }
+    .tl-dot {
+      width: 40px; height: 40px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; margin: 0 auto 8px; border: 2px solid;
+    }
+    .tl-dot.green  { background: rgba(5,150,82,0.1);   border-color: var(--green); }
+    .tl-dot.orange { background: rgba(212,84,26,0.1);  border-color: var(--orange); }
+    .tl-dot.purple { background: rgba(124,58,237,0.1); border-color: var(--purple); }
+    .tl-dot.blue   { background: rgba(26,95,212,0.1);  border-color: var(--blue); }
+    .tl-label  { font-size: 13px; font-weight: 700; color: #1a1d2e; }
+    .tl-date   { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .tl-detail { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+    .tl-note {
+      margin-top: 16px; padding: 12px 14px; background: #f9fafb;
+      border-radius: 8px; font-size: 12px; color: #374151; line-height: 1.6;
+      border: 1px solid var(--card-border);
+    }
+
+    /* ── MAP + SEARCH ── */
+    .map-search-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+    .map-card, .search-card {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: 10px; overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .map-card iframe { width: 100%; height: 300px; border: none; display: block; }
+    .panel-header {
+      padding: 14px 18px; display: flex; align-items: center; gap: 8px;
+      border-bottom: 1px solid var(--card-border); background: #f9fafb;
+    }
+    .panel-header h3 { font-size: 13px; font-weight: 700; color: #1a1d2e; }
+    .map-address {
+      padding: 10px 18px; font-size: 11px; color: var(--text-muted);
+      background: #f0fdf9; border-top: 1px solid var(--card-border);
+    }
+    .search-body { padding: 14px 18px; }
+    .search-note { font-size: 12px; color: var(--text-muted); margin-bottom: 12px; line-height: 1.6; }
+    .search-btn {
+      display: flex; align-items: center; gap: 8px; padding: 10px 14px;
+      border-radius: 7px; text-decoration: none; font-size: 12px; font-weight: 600;
+      margin-bottom: 8px; transition: all 0.15s; border: 1px solid;
+    }
+    .search-btn:hover { transform: translateX(3px); }
+    .search-btn.gmaps   { background: rgba(66,133,244,0.07);  color: #1a5fd4; border-color: rgba(66,133,244,0.2); }
+    .search-btn.booking { background: rgba(0,115,230,0.07);   color: #0055a5; border-color: rgba(0,115,230,0.2); }
+    .search-btn.airbnb  { background: rgba(255,90,95,0.07);   color: #c0392b; border-color: rgba(255,90,95,0.2); }
+    .search-btn.agoda   { background: rgba(232,0,64,0.07);    color: #9b2226; border-color: rgba(232,0,64,0.2); }
+    .btn-sub  { font-size: 10px; font-weight: 400; opacity: 0.8; }
+
+    /* ── NOTES ── */
+    .notes-card {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-left: 3px solid var(--blue); border-radius: 10px;
+      padding: 18px 22px; margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .notes-card h4 { font-size: 12px; font-weight: 700; color: var(--blue); letter-spacing: 0.5px; margin-bottom: 10px; text-transform: uppercase; }
+    .note-item { font-size: 12px; color: #4b5563; padding: 3px 0; line-height: 1.6; }
+    .note-item::before { content: '•'; color: var(--blue); margin-right: 7px; }
+
+    .footer {
+      text-align: center; padding: 20px 40px; color: var(--text-muted);
+      font-size: 11px; border-top: 1px solid var(--card-border);
+      background: var(--card-bg);
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div class="uber-badge">COE</div>
+    <h1>花蓮差旅費預算試算 | Agent Deployment Budget</h1>
+  </div>
+  <div class="header-meta">
+    <span>2 Agents</span> deployed to Hualien &nbsp;·&nbsp;
+    <span>Jun 1 – Aug 31, 2026</span> &nbsp;·&nbsp;
+    Office: <span>花蓮縣花蓮市中山路一段386號</span> &nbsp;·&nbsp;
+    Rotation every <span>30 days</span>
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="section-title">Budget Summary</div>
+  <div class="cards-grid">
+    <div class="card green">
+      <div class="card-label">Total Budget</div>
+      <div class="card-value" id="totalBudget">—<span>NTD</span></div>
+      <div class="card-sub">92 nights · 3 months</div>
+    </div>
+    <div class="card blue">
+      <div class="card-label">Accommodation</div>
+      <div class="card-value" id="totalAccom">—<span>NTD</span></div>
+      <div class="card-sub">@ <span id="accomRateSub">2,200</span>/pax/night</div>
+    </div>
+    <div class="card orange">
+      <div class="card-label">Meals (Weekdays)</div>
+      <div class="card-value" id="totalMeals">—<span>NTD</span></div>
+      <div class="card-sub">66 weekdays · 2 persons</div>
+    </div>
+    <div class="card purple">
+      <div class="card-label">Travel (Train)</div>
+      <div class="card-value" id="totalTravel">—<span>NTD</span></div>
+      <div class="card-sub">3 round trips · 2 persons</div>
+    </div>
+    <div class="card teal">
+      <div class="card-label">Motorcycle Rental</div>
+      <div class="card-value" id="totalMoto">—<span>NTD</span></div>
+      <div class="card-sub" id="motoCardSub">2 bikes · 92 days</div>
+    </div>
+  </div>
+
+  <div class="controls-card">
+    <div class="controls-header">
+      <h3>⚙️ Adjust Budget Parameters</h3>
+      <span class="badge-live">LIVE UPDATE</span>
+    </div>
+    <div class="sliders-grid">
+      <div class="slider-row">
+        <label>Accommodation (per person/night) <strong class="green">NT$<span id="accomLabel">2,200</span></strong></label>
+        <input type="range" id="accomSlider" min="800" max="2200" step="50" value="2200" oninput="updateBudget()" />
+        <div class="slider-hints"><span>NT$800 Budget</span><span>NT$1,500 Mid</span><span>NT$2,200 Max</span></div>
+      </div>
+      <div class="slider-row">
+        <label>Train Ticket (one-way/person) <strong class="purple">NT$<span id="trainLabel">450</span></strong></label>
+        <input type="range" id="trainSlider" min="350" max="600" step="10" value="450" oninput="updateBudget()" />
+        <div class="slider-hints"><span>NT$350 普通</span><span>NT$450 自強</span><span>NT$600 太魯閣</span></div>
+      </div>
+      <div class="slider-row">
+        <label>🏍️ Motorcycle (per bike/day) <strong class="teal">NT$<span id="motoLabel">300</span></strong></label>
+        <input type="range" id="motoSlider" min="200" max="500" step="10" value="300" oninput="updateBudget()" />
+        <div class="slider-hints"><span>NT$200 Economy</span><span>NT$300 125cc</span><span>NT$500 Premium</span></div>
+      </div>
+    </div>
+    <div class="bike-toggle-row">
+      <span class="bike-toggle-label">🏍️ Number of bikes:</span>
+      <button class="toggle-btn" id="btn1bike" onclick="setBikes(1)">1 Bike (shared)</button>
+      <button class="toggle-btn active" id="btn2bike" onclick="setBikes(2)">2 Bikes (1 each)</button>
+      <span id="bikeCostHint">Each agent has their own bike — recommended for flexibility</span>
+    </div>
+  </div>
+
+  <div class="section-title">Monthly Cost Breakdown</div>
+  <div class="table-card">
+    <table>
+      <thead>
+        <tr>
+          <th>Month</th>
+          <th>Nights</th>
+          <th>Weekdays</th>
+          <th>Accommodation</th>
+          <th>Meals</th>
+          <th>Travel (RT)</th>
+          <th>🏍️ Moto Rental</th>
+          <th>Monthly Total</th>
+          <th>Per Person</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+      <tfoot>
+        <tr>
+          <td>3-Month Total</td>
+          <td>92</td>
+          <td>66</td>
+          <td id="footAccom">—</td>
+          <td id="footMeals">—</td>
+          <td id="footTravel">—</td>
+          <td id="footMoto" style="color:var(--teal)">—</td>
+          <td id="footTotal">—</td>
+          <td id="footPer">—</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div class="section-title">Cost Visualization</div>
+  <div class="charts-grid">
+    <div class="chart-card">
+      <h3>Monthly Cost Breakdown by Category</h3>
+      <canvas id="barChart" height="180"></canvas>
+    </div>
+    <div class="chart-card">
+      <h3>Budget Composition (Total)</h3>
+      <canvas id="doughnutChart" height="180"></canvas>
+    </div>
+  </div>
+
+  <div class="section-title">🏍️ Motorcycle Rental — 花蓮 Market Rates</div>
+  <div class="moto-info-card">
+    <h3>Known Rental Shops Near Hualien Station (花蓮火車站)</h3>
+    <div class="moto-shops-grid">
+      <div class="moto-shop">
+        <div class="moto-shop-name">行易租車 (HualienTour)</div>
+        <div class="moto-shop-detail">Near Station · Helmet + phone mount + USB charging · 100cc / 125cc options</div>
+        <div class="moto-shop-price">NT$250 / day</div>
+      </div>
+      <div class="moto-shop">
+        <div class="moto-shop-name">鋐運租車 (HongYun)</div>
+        <div class="moto-shop-detail">Online net rate · 24hr use · USB + Type-C charger · 125cc scooters</div>
+        <div class="moto-shop-price">NT$300 / day</div>
+      </div>
+      <div class="moto-shop">
+        <div class="moto-shop-name">長城租車 (Great Wall)</div>
+        <div class="moto-shop-detail">3 min walk from station · Multiple 125cc models · Weekday vs weekend pricing</div>
+        <div class="moto-shop-price">NT$250–450 / day</div>
+      </div>
+    </div>
+    <div class="moto-tip">
+      💡 <strong>Monthly rate tip:</strong> Most shops don't publicly list monthly (月租) packages, but typically offer
+      <strong style="color:var(--teal)">20–40% discount for 30-day rentals</strong> if negotiated directly.
+      Estimated monthly cost per bike: <strong style="color:var(--teal)">NT$4,500–7,000/month</strong> vs ~NT$9,000 at daily rate.
+      At rotation, ask the shop to transfer the contract to the incoming agent instead of re-renting.
+    </div>
+  </div>
+
+  <div class="section-title">Travel Details — Taipei ↔ Hualien</div>
+  <div class="train-card">
+    <h3>🚄 Train Route & Estimated Fares</h3>
+    <div class="train-route">
+      <div class="train-station"><strong>台北</strong><span>Taipei Station</span></div>
+      <div class="train-arrow">
+        <div class="train-arrow-line">—— 🚆 ——→</div>
+        <div class="train-duration">~2 hrs (太魯閣/自強) · ~2.5 hrs (普通自強)</div>
+      </div>
+      <div class="train-station"><strong>花蓮</strong><span>Hualien Station</span></div>
+    </div>
+    <div class="train-price-row">
+      <div class="train-price-item">
+        <div><div class="train-price-label">普通自強號</div><div style="font-size:10px;color:var(--text-muted)">Standard Express</div></div>
+        <div class="train-price-value">~NT$375</div>
+      </div>
+      <div class="train-price-item">
+        <div><div class="train-price-label">自強號 (Tze-Chiang)</div><div style="font-size:10px;color:var(--text-muted)">Limited Express</div></div>
+        <div class="train-price-value">~NT$448</div>
+      </div>
+      <div class="train-price-item">
+        <div><div class="train-price-label">太魯閣/普悠瑪</div><div style="font-size:10px;color:var(--text-muted)">Taroko / Puyuma</div></div>
+        <div class="train-price-value">~NT$512</div>
+      </div>
+      <div class="train-price-item" style="border-left:2px solid var(--green)">
+        <div><div class="train-price-label">Round Trip / person</div><div style="font-size:10px;color:var(--text-muted)">Based on slider</div></div>
+        <div class="train-price-value" id="rtPrice">NT$900</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Agent Rotation Schedule</div>
+  <div class="timeline-card">
+    <h3>📅 30-Day Deployment Rotation — 2 Agents per Period</h3>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-dot green">✈️</div>
+        <div class="tl-label">June 1</div><div class="tl-date">Deployment</div>
+        <div class="tl-detail">Batch 1 → 花蓮</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot orange">🔄</div>
+        <div class="tl-label">Jul 1</div><div class="tl-date">Rotation #1</div>
+        <div class="tl-detail">Batch 1 ← 台北 · Batch 2 → 花蓮</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot purple">🔄</div>
+        <div class="tl-label">Aug 1</div><div class="tl-date">Rotation #2</div>
+        <div class="tl-detail">Batch 2 ← 台北 · Batch 3 → 花蓮</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot blue">🏁</div>
+        <div class="tl-label">Sep 1</div><div class="tl-date">End of Deployment</div>
+        <div class="tl-detail">Batch 3 ← 台北</div>
+      </div>
+    </div>
+    <div class="tl-note">
+      💡 <strong>Motorcycle handover:</strong> At each rotation, check if the rental shop allows contract name transfers — avoids paying re-rental deposit fees every month.
+    </div>
+  </div>
+
+  <div class="section-title">📍 Accommodation Search — Near Office</div>
+  <div class="map-search-grid">
+    <div class="map-card">
+      <div class="panel-header"><h3>🗺️ 花蓮縣花蓮市中山路一段386號</h3></div>
+      <iframe src="https://maps.google.com/maps?q=花蓮縣花蓮市中山路一段386號&output=embed&hl=zh-TW&z=15"
+        allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      <div class="map-address">📍 Aim for accommodation within <strong>1.5–2 km</strong> — short ride with motorcycles</div>
+    </div>
+    <div class="search-card">
+      <div class="panel-header"><h3>🔍 Find Accommodation</h3></div>
+      <div class="search-body">
+        <div class="search-note">Look for <strong>月租 (monthly rates)</strong> for best 30-day value. With motorcycles, a 2–3 km radius is fine.</div>
+        <a class="search-btn gmaps" href="https://www.google.com/maps/search/hotels+near+花蓮縣花蓮市中山路一段386號/@23.985,121.601,15z" target="_blank">
+          <span>🗺️</span><div><div>Google Maps Hotels</div><div class="btn-sub">Live ratings, photos, pricing</div></div>
+        </a>
+        <a class="search-btn booking" href="https://www.booking.com/searchresults.html?dest_id=900047916&dest_type=landmark&checkin=2026-06-01&checkout=2026-06-30&no_rooms=2&group_adults=2&ss=花蓮市中山路" target="_blank">
+          <span>🏨</span><div><div>Booking.com — Hualien City</div><div class="btn-sub">Hotels & guesthouses · Free cancellation</div></div>
+        </a>
+        <a class="search-btn airbnb" href="https://www.airbnb.com/s/花蓮市/homes?checkin=2026-06-01&checkout=2026-06-30&adults=2" target="_blank">
+          <span>🏠</span><div><div>Airbnb — 花蓮市</div><div class="btn-sub">Entire apartments · Monthly discounts</div></div>
+        </a>
+        <a class="search-btn agoda" href="https://www.agoda.com/search?city=2030&checkIn=2026-06-01&checkOut=2026-06-30&rooms=1&adults=2&children=0&los=30" target="_blank">
+          <span>🌏</span><div><div>Agoda — 花蓮</div><div class="btn-sub">Great Taiwan rates · Often cheapest</div></div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="notes-card">
+    <h4>📋 Budget Assumptions & Notes</h4>
+    <div class="note-item">Accommodation at <strong>max NT$2,200/person/night</strong> × 2 persons × all nights incl. weekends. Use slider to model lower costs.</div>
+    <div class="note-item">Meals at <strong>NT$600/person/weekday only</strong> — weekends excluded. June: 22 days | July: 23 days | August: 21 days = 66 total.</div>
+    <div class="note-item">Travel: <strong>one round-trip per agent pair per month</strong>. Default ~NT$450 one-way (自強號). Adjust with slider.</div>
+    <div class="note-item">Motorcycle: budgeted at <strong>daily rate × all calendar days per bike</strong>. Monthly negotiation may reduce by 20–40%. Use slider to model scenarios.</div>
+    <div class="note-item">Budget does NOT include: fuel/petrol, work equipment, mobile data, or emergency buffer. Recommend adding <strong>10–15% contingency</strong>.</div>
+    <div class="note-item">台鐵 booking opens 28 days in advance — book 太魯閣/普悠瑪 early, especially Friday/Sunday trains.</div>
+  </div>
+
+</div>
+
+<div class="footer">
+  COE Team · Uber &nbsp;·&nbsp; Budget figures are estimates — actual costs may vary &nbsp;·&nbsp;
+  Sources: 行易租車, 鋐運租車, 長城租車, KKday, Klook
+</div>
+
+<script>
+const months = [
+  { name: 'June 2026',   nights: 30, weekdays: 22 },
+  { name: 'July 2026',   nights: 31, weekdays: 23 },
+  { name: 'August 2026', nights: 31, weekdays: 21 },
+];
+const PERSONS   = 2;
+const MEAL_RATE = 600;
+let bikeCount   = 2;
+let barChart, doughnut;
+
+function fmt(n) { return 'NT$' + Math.round(n).toLocaleString(); }
+
+function setBikes(n) {
+  bikeCount = n;
+  document.getElementById('btn1bike').classList.toggle('active', n === 1);
+  document.getElementById('btn2bike').classList.toggle('active', n === 2);
+  document.getElementById('bikeCostHint').textContent = n === 1
+    ? 'One shared bike — agents coordinate schedules'
+    : 'Each agent has their own bike — recommended for flexibility';
+  updateBudget();
+}
+
+function updateBudget() {
+  const accomRate   = parseInt(document.getElementById('accomSlider').value);
+  const trainOneWay = parseInt(document.getElementById('trainSlider').value);
+  const motoRate    = parseInt(document.getElementById('motoSlider').value);
+
+  document.getElementById('accomLabel').textContent   = accomRate.toLocaleString();
+  document.getElementById('trainLabel').textContent   = trainOneWay.toLocaleString();
+  document.getElementById('motoLabel').textContent    = motoRate.toLocaleString();
+  document.getElementById('accomRateSub').textContent = accomRate.toLocaleString();
+  document.getElementById('rtPrice').textContent      = 'NT$' + (trainOneWay * 2).toLocaleString();
+  document.getElementById('motoCardSub').textContent  = bikeCount + ' bike' + (bikeCount > 1 ? 's' : '') + ' · 92 days';
+
+  // Slider gradient fills
+  const ap = (accomRate - 800) / (2200 - 800) * 100;
+  document.getElementById('accomSlider').style.background = `linear-gradient(to right,#059652 ${ap}%,#e2e5ef ${ap}%)`;
+  const tp = (trainOneWay - 350) / (600 - 350) * 100;
+  document.getElementById('trainSlider').style.background = `linear-gradient(to right,#7c3aed ${tp}%,#e2e5ef ${tp}%)`;
+  const mp = (motoRate - 200) / (500 - 200) * 100;
+  document.getElementById('motoSlider').style.background  = `linear-gradient(to right,#0f9488 ${mp}%,#e2e5ef ${mp}%)`;
+
+  let totalAccom = 0, totalMeals = 0, totalTravel = 0, totalMoto = 0, grandTotal = 0;
+  const accomData = [], mealData = [], travelData = [], motoData = [];
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = '';
+
+  months.forEach((m, i) => {
+    const accom  = m.nights   * PERSONS  * accomRate;
+    const meals  = m.weekdays * PERSONS  * MEAL_RATE;
+    const travel = PERSONS    * trainOneWay * 2;
+    const moto   = m.nights   * bikeCount   * motoRate;
+    const total  = accom + meals + travel + moto;
+
+    totalAccom  += accom;  totalMeals  += meals;
+    totalTravel += travel; totalMoto   += moto;
+    grandTotal  += total;
+
+    accomData.push(accom); mealData.push(meals);
+    travelData.push(travel); motoData.push(moto);
+
+    const badges = ['green','orange','blue'];
+    tbody.innerHTML += `
+      <tr>
+        <td>${m.name}<span class="pill ${badges[i]}">${m.weekdays} workdays</span></td>
+        <td>${m.nights}</td><td>${m.weekdays}</td>
+        <td>${fmt(accom)}</td><td>${fmt(meals)}</td>
+        <td>${fmt(travel)}</td>
+        <td style="color:var(--teal);font-weight:600">${fmt(moto)}</td>
+        <td style="font-weight:700">${fmt(total)}</td>
+        <td style="color:var(--green);font-weight:600">${fmt(total/PERSONS)}</td>
+      </tr>`;
+  });
+
+  document.getElementById('footAccom').textContent  = fmt(totalAccom);
+  document.getElementById('footMeals').textContent  = fmt(totalMeals);
+  document.getElementById('footTravel').textContent = fmt(totalTravel);
+  document.getElementById('footMoto').textContent   = fmt(totalMoto);
+  document.getElementById('footTotal').textContent  = fmt(grandTotal);
+  document.getElementById('footPer').textContent    = fmt(grandTotal / PERSONS);
+
+  document.getElementById('totalBudget').innerHTML = Math.round(grandTotal/1000)+'K<span>NTD</span>';
+  document.getElementById('totalAccom').innerHTML  = Math.round(totalAccom/1000)+'K<span>NTD</span>';
+  document.getElementById('totalMeals').innerHTML  = Math.round(totalMeals/1000)+'K<span>NTD</span>';
+  document.getElementById('totalTravel').innerHTML = fmt(totalTravel).replace('NT$','')+'<span>NTD</span>';
+  document.getElementById('totalMoto').innerHTML   = Math.round(totalMoto/1000)+'K<span>NTD</span>';
+
+  updateCharts(accomData, mealData, travelData, motoData,
+               [totalAccom, totalMeals, totalTravel, totalMoto]);
+}
+
+function updateCharts(ad, md, td, od, pie) {
+  const labels = ['June 2026','July 2026','August 2026'];
+  const C = { blue:'rgba(26,95,212,0.8)', orange:'rgba(212,84,26,0.8)', green:'rgba(5,150,82,0.8)', teal:'rgba(15,148,136,0.8)' };
+
+  if (barChart) {
+    barChart.data.datasets[0].data = ad; barChart.data.datasets[1].data = md;
+    barChart.data.datasets[2].data = td; barChart.data.datasets[3].data = od;
+    barChart.update();
+  } else {
+    barChart = new Chart(document.getElementById('barChart'), {
+      type: 'bar',
+      data: { labels, datasets: [
+        { label:'Accommodation', data:ad, backgroundColor:C.blue,   borderRadius:4 },
+        { label:'Meals',         data:md, backgroundColor:C.orange, borderRadius:4 },
+        { label:'Travel',        data:td, backgroundColor:C.green,  borderRadius:4 },
+        { label:'Motorcycle',    data:od, backgroundColor:C.teal,   borderRadius:4 },
+      ]},
+      options: {
+        responsive:true,
+        plugins:{ legend:{ labels:{ color:'#374151', font:{size:12} } } },
+        scales:{
+          x:{ stacked:true, grid:{color:'#f0f1f5'}, ticks:{color:'#6b7280'} },
+          y:{ stacked:true, grid:{color:'#f0f1f5'}, ticks:{color:'#6b7280', callback:v=>'NT$'+v.toLocaleString()} }
+        }
+      }
+    });
+  }
+
+  if (doughnut) {
+    doughnut.data.datasets[0].data = pie; doughnut.update();
+  } else {
+    doughnut = new Chart(document.getElementById('doughnutChart'), {
+      type:'doughnut',
+      data:{
+        labels:['Accommodation','Meals','Travel','Motorcycle'],
+        datasets:[{ data:pie, backgroundColor:[C.blue,C.orange,C.green,C.teal], borderColor:'#fff', borderWidth:3 }]
+      },
+      options:{
+        responsive:true,
+        plugins:{
+          legend:{ position:'bottom', labels:{color:'#374151',font:{size:12},padding:12} },
+          tooltip:{ callbacks:{ label:ctx=>' NT$'+ctx.raw.toLocaleString() } }
+        }
+      }
+    });
+  }
+}
+
+updateBudget();
+</script>
+</body>
+</html>
