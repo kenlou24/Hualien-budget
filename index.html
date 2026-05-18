@@ -1,614 +1,774 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>花蓮差旅費預算比較 | COE Agent Travel Budget Comparison</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>花蓮差旅費預算 | COE Agent Travel Budget</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.js" integrity="sha384-iU8HYtnGQ8Cy4zl7gbNMOhsDTTKX02BTXptVP/vqAWIaTfM7isw76iyZCsjL2eVi" crossorigin="anonymous"></script>
   <style>
-    :root { color-scheme: light; }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f6fa; color: #1a1d2e; min-height: 100vh; }
-    :root {
-      --green:  #059652; --blue: #1a5fd4; --orange: #d4541a;
-      --purple: #7c3aed; --teal: #0f9488; --red: #dc2626;
-      --card-bg: #ffffff; --card-border: #e2e5ef; --muted: #6b7280;
-      --a-color: #1a5fd4; --b-color: #059652;
+    :root{color-scheme:light;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f6fa;color:#1a1d2e;min-height:100vh;}
+    :root{
+      --green:#059652;--blue:#1a5fd4;--orange:#d4541a;
+      --purple:#7c3aed;--teal:#0f9488;--red:#dc2626;
+      --card:#fff;--border:#e2e5ef;--muted:#6b7280;--bg:#f5f6fa;
+      --a:#1a5fd4;--b:#059652;
     }
 
     /* ── HEADER ── */
-    .header { background: linear-gradient(135deg,#1a1d2e 0%,#2d3250 100%); padding: 24px 40px 20px; }
-    .header-top { display:flex; align-items:center; gap:12px; margin-bottom:6px; }
-    .coe-badge { background:#06C167; color:#000; font-weight:800; font-size:11px; letter-spacing:1.5px; padding:4px 10px; border-radius:4px; }
-    .header h1 { font-size:19px; font-weight:700; color:#fff; }
-    .header-meta { color:rgba(255,255,255,0.6); font-size:12px; }
-    .header-meta span { color:#06C167; font-weight:500; }
+    .hdr{background:linear-gradient(135deg,#1a1d2e 0%,#2d3250 100%);padding:20px 36px 16px;}
+    .hdr-top{display:flex;align-items:center;gap:12px;margin-bottom:5px;}
+    .badge{background:#06C167;color:#000;font-weight:800;font-size:11px;letter-spacing:1.5px;padding:3px 9px;border-radius:4px;}
+    .hdr h1{font-size:18px;font-weight:700;color:#fff;}
+    .hdr-meta{color:rgba(255,255,255,.55);font-size:12px;}
+    .hdr-meta span{color:#06C167;font-weight:500;}
 
-    .main { padding:24px 40px; max-width:1400px; margin:0 auto; }
+    /* ── SHARED CONTROLS ── */
+    .ctrl-wrap{background:var(--card);border-bottom:1px solid var(--border);padding:16px 36px;}
+    .ctrl-inner{max-width:1380px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:20px;align-items:end;}
+    .sr label{display:flex;justify-content:space-between;font-size:12px;color:#374151;font-weight:500;margin-bottom:6px;}
+    .sr label strong{font-size:13px;font-weight:800;}
+    input[type=range]{width:100%;height:4px;-webkit-appearance:none;border-radius:4px;outline:none;cursor:pointer;}
+    input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+    #sAccom::-webkit-slider-thumb{background:var(--blue);}
+    #sTrain::-webkit-slider-thumb{background:var(--purple);}
+    #sMoto::-webkit-slider-thumb{background:var(--teal);}
+    .hints{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:3px;}
+    .bike-ctrl{display:flex;flex-direction:column;gap:6px;}
+    .bike-ctrl label{font-size:12px;color:#374151;font-weight:500;}
+    .bike-btns{display:flex;gap:6px;}
+    .tbtn{padding:5px 14px;border-radius:20px;border:1px solid var(--border);background:#f9fafb;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;}
+    .tbtn.active{background:rgba(15,148,136,.1);color:var(--teal);border-color:rgba(15,148,136,.35);}
 
-    /* ── SECTION TITLE ── */
-    .sec { font-size:11px; font-weight:700; letter-spacing:1.3px; color:var(--muted); text-transform:uppercase; margin-bottom:14px; padding-bottom:7px; border-bottom:2px solid var(--card-border); }
+    /* ── TAB NAV ── */
+    .tab-nav{background:var(--card);border-bottom:2px solid var(--border);padding:0 36px;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+    .tab-nav-inner{max-width:1380px;margin:0 auto;display:flex;gap:0;}
+    .tnav-btn{padding:14px 28px;font-size:13px;font-weight:600;color:var(--muted);border:none;background:transparent;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s;display:flex;align-items:center;gap:8px;}
+    .tnav-btn:hover{color:#374151;}
+    .tnav-btn.active-a{color:var(--a);border-bottom-color:var(--a);}
+    .tnav-btn.active-b{color:var(--b);border-bottom-color:var(--b);}
+    .tnav-btn.active-c{color:var(--orange);border-bottom-color:var(--orange);}
 
-    /* ── SCENARIO LABELS ── */
-    .scenario-headers { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; }
-    .scenario-label {
-      border-radius:10px; padding:14px 20px;
-      display:flex; align-items:center; gap:12px;
-    }
-    .scenario-label.a { background:rgba(26,95,212,0.08); border:1px solid rgba(26,95,212,0.2); }
-    .scenario-label.b { background:rgba(5,150,82,0.08);  border:1px solid rgba(5,150,82,0.2); }
-    .scenario-dot { width:12px; height:12px; border-radius:50%; flex-shrink:0; }
-    .scenario-dot.a { background:var(--a-color); }
-    .scenario-dot.b { background:var(--b-color); }
-    .scenario-title { font-size:14px; font-weight:700; }
-    .scenario-title.a { color:var(--a-color); }
-    .scenario-title.b { color:var(--b-color); }
-    .scenario-desc { font-size:12px; color:var(--muted); margin-top:2px; }
+    /* ── MAIN WRAPPER ── */
+    .page{display:none;padding:24px 36px;max-width:1380px;margin:0 auto;}
+    .page.active{display:block;}
 
-    /* ── SAVINGS BANNER ── */
-    .savings-banner {
-      background: linear-gradient(135deg, rgba(5,150,82,0.08) 0%, rgba(5,150,82,0.04) 100%);
-      border: 1px solid rgba(5,150,82,0.25); border-left:4px solid var(--green);
-      border-radius:10px; padding:16px 24px; margin-bottom:24px;
-      display:flex; align-items:center; justify-content:space-between;
-    }
-    .savings-main { font-size:13px; color:#374151; }
-    .savings-main strong { color:var(--green); font-size:22px; font-weight:800; }
-    .savings-detail { font-size:11px; color:var(--muted); margin-top:3px; }
-    .savings-chips { display:flex; gap:8px; flex-wrap:wrap; }
-    .chip {
-      padding:4px 12px; border-radius:20px; font-size:11px; font-weight:600;
-      border:1px solid;
-    }
-    .chip.pos { background:rgba(5,150,82,0.1); color:var(--green); border-color:rgba(5,150,82,0.25); }
-    .chip.neg { background:rgba(220,38,38,0.08); color:var(--red); border-color:rgba(220,38,38,0.2); }
+    /* ── SECTION LABEL ── */
+    .sec{font-size:11px;font-weight:700;letter-spacing:1.3px;color:var(--muted);text-transform:uppercase;margin-bottom:12px;padding-bottom:7px;border-bottom:2px solid var(--border);margin-top:22px;}
+    .sec:first-child{margin-top:0;}
 
-    /* ── CONTROLS ── */
-    .controls-card { background:var(--card-bg); border:1px solid var(--card-border); border-radius:10px; padding:18px 22px; margin-bottom:22px; box-shadow:0 1px 3px rgba(0,0,0,.05); }
-    .controls-header { display:flex; align-items:center; gap:10px; margin-bottom:16px; }
-    .controls-header h3 { font-size:14px; font-weight:700; color:#1a1d2e; }
-    .live-badge { background:rgba(5,150,82,0.1); color:var(--green); border:1px solid rgba(5,150,82,0.25); font-size:10px; font-weight:700; letter-spacing:.8px; padding:2px 8px; border-radius:20px; }
-    .sliders-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
-    .sr label { display:flex; justify-content:space-between; font-size:12px; color:#374151; font-weight:500; margin-bottom:7px; }
-    .sr label strong { font-size:14px; font-weight:800; }
-    input[type=range] { width:100%; height:4px; -webkit-appearance:none; border-radius:4px; outline:none; cursor:pointer; }
-    input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:15px; height:15px; border-radius:50%; cursor:pointer; box-shadow:0 1px 3px rgba(0,0,0,.2); }
-    #accomSlider::-webkit-slider-thumb { background:var(--blue); }
-    #trainSlider::-webkit-slider-thumb { background:var(--purple); }
-    #motoSlider::-webkit-slider-thumb  { background:var(--teal); }
-    .hints { display:flex; justify-content:space-between; font-size:10px; color:var(--muted); margin-top:4px; }
-    .bike-row { display:flex; align-items:center; gap:10px; margin-top:14px; padding-top:14px; border-top:1px solid var(--card-border); }
-    .bike-lbl { font-size:12px; color:#374151; font-weight:500; }
-    .tbtn { padding:5px 15px; border-radius:20px; border:1px solid var(--card-border); background:#f9fafb; color:var(--muted); font-size:12px; font-weight:600; cursor:pointer; transition:all .15s; }
-    .tbtn.active { background:rgba(15,148,136,.1); color:var(--teal); border-color:rgba(15,148,136,.35); }
-    #bikeHint { font-size:11px; color:var(--muted); }
+    /* ── CARDS ── */
+    .cards5{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:22px;}
+    .cards2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px;}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.05);}
+    .card-lbl{font-size:10px;font-weight:700;letter-spacing:.8px;color:var(--muted);text-transform:uppercase;margin-bottom:8px;}
+    .card-val{font-size:22px;font-weight:800;line-height:1;}
+    .card-val span{font-size:11px;font-weight:500;color:var(--muted);margin-left:2px;}
+    .card-sub{font-size:11px;color:var(--muted);margin-top:5px;}
+    .ct-green {border-top:3px solid var(--green); }.ct-green .card-val{color:var(--green);}
+    .ct-blue  {border-top:3px solid var(--blue);}
+    .ct-orange{border-top:3px solid var(--orange);}
+    .ct-purple{border-top:3px solid var(--purple);}
+    .ct-teal  {border-top:3px solid var(--teal);}
 
-    /* ── COMPARISON CARDS ── */
-    .compare-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:22px; }
-    .scenario-card { background:var(--card-bg); border:1px solid var(--card-border); border-radius:10px; padding:0; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,.05); }
-    .sc-head { padding:12px 18px; border-bottom:1px solid var(--card-border); display:flex; align-items:center; justify-content:space-between; }
-    .sc-head.a { background:rgba(26,95,212,0.05); border-top:3px solid var(--a-color); }
-    .sc-head.b { background:rgba(5,150,82,0.05);  border-top:3px solid var(--b-color); }
-    .sc-head-left { display:flex; align-items:center; gap:8px; }
-    .sc-head-left h3 { font-size:13px; font-weight:700; }
-    .sc-head-left h3.a { color:var(--a-color); }
-    .sc-head-left h3.b { color:var(--b-color); }
-    .sc-body { padding:14px 18px; }
-    .sc-row { display:flex; justify-content:space-between; align-items:center; padding:7px 0; border-bottom:1px solid #f3f4f6; }
-    .sc-row:last-child { border-bottom:none; }
-    .sc-row-label { font-size:12px; color:var(--muted); display:flex; align-items:center; gap:6px; }
-    .sc-row-value { font-size:13px; font-weight:700; color:#1a1d2e; }
-    .sc-total { display:flex; justify-content:space-between; align-items:center; margin-top:10px; padding-top:10px; border-top:2px solid var(--card-border); }
-    .sc-total span { font-size:12px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; }
-    .sc-total strong { font-size:20px; font-weight:800; }
-    .sc-total strong.a { color:var(--a-color); }
-    .sc-total strong.b { color:var(--b-color); }
-
-    /* ── FULL TABLE ── */
-    .table-card { background:var(--card-bg); border:1px solid var(--card-border); border-radius:10px; overflow:hidden; margin-bottom:22px; box-shadow:0 1px 3px rgba(0,0,0,.05); }
-    .tab-toggle { display:flex; gap:0; background:#f9fafb; border-bottom:1px solid var(--card-border); }
-    .tab-btn { flex:1; padding:10px; text-align:center; font-size:12px; font-weight:600; cursor:pointer; border:none; background:transparent; color:var(--muted); transition:all .15s; border-bottom:2px solid transparent; }
-    .tab-btn.active.a { color:var(--a-color); border-bottom-color:var(--a-color); background:rgba(26,95,212,0.04); }
-    .tab-btn.active.b { color:var(--b-color); border-bottom-color:var(--b-color); background:rgba(5,150,82,0.04); }
-    .tab-btn.active.diff { color:var(--orange); border-bottom-color:var(--orange); background:rgba(212,84,26,.04); }
-    table { width:100%; border-collapse:collapse; }
-    thead th { background:#f9fafb; padding:11px 14px; text-align:right; font-size:10px; font-weight:700; letter-spacing:.8px; color:var(--muted); text-transform:uppercase; white-space:nowrap; border-bottom:1px solid var(--card-border); }
-    thead th:first-child { text-align:left; }
-    tbody tr { border-top:1px solid #f0f1f5; }
-    tbody tr:hover { background:#fafbff; }
-    tbody td { padding:12px 14px; text-align:right; font-size:13px; color:#374151; }
-    tbody td:first-child { text-align:left; font-weight:700; color:#1a1d2e; }
-    tfoot td { padding:12px 14px; text-align:right; font-size:13px; font-weight:700; border-top:2px solid var(--card-border); background:#f9fafb; }
-    tfoot td:first-child { text-align:left; color:#1a1d2e; }
-    .pill { display:inline-block; border-radius:20px; font-size:10px; padding:1px 7px; font-weight:600; margin-left:4px; }
-    .pill.g { background:rgba(5,150,82,.1); color:var(--green); border:1px solid rgba(5,150,82,.2); }
-    .pill.o { background:rgba(212,84,26,.1); color:var(--orange); border:1px solid rgba(212,84,26,.2); }
-    .pill.b { background:rgba(26,95,212,.1); color:var(--blue); border:1px solid rgba(26,95,212,.2); }
-    .positive { color:var(--green) !important; }
-    .negative { color:var(--red) !important; }
+    /* ── TABLE ── */
+    .tbl-card{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:22px;box-shadow:0 1px 3px rgba(0,0,0,.05);}
+    table{width:100%;border-collapse:collapse;}
+    thead th{background:#f9fafb;padding:11px 13px;text-align:right;font-size:10px;font-weight:700;letter-spacing:.8px;color:var(--muted);text-transform:uppercase;border-bottom:1px solid var(--border);white-space:nowrap;}
+    thead th:first-child{text-align:left;}
+    tbody tr{border-top:1px solid #f0f1f5;}
+    tbody tr:hover{background:#fafbff;}
+    tbody td{padding:12px 13px;text-align:right;font-size:13px;color:#374151;}
+    tbody td:first-child{text-align:left;font-weight:700;color:#1a1d2e;}
+    tfoot td{padding:12px 13px;text-align:right;font-size:13px;font-weight:700;border-top:2px solid var(--border);background:#f9fafb;}
+    tfoot td:first-child{text-align:left;color:#1a1d2e;}
+    .pill{display:inline-block;border-radius:20px;font-size:10px;padding:1px 7px;font-weight:600;margin-left:4px;}
+    .pg{background:rgba(5,150,82,.1);color:var(--green);border:1px solid rgba(5,150,82,.2);}
+    .po{background:rgba(212,84,26,.1);color:var(--orange);border:1px solid rgba(212,84,26,.2);}
+    .pb{background:rgba(26,95,212,.1);color:var(--blue);border:1px solid rgba(26,95,212,.2);}
+    .positive{color:var(--green)!important;}
+    .negative{color:var(--red)!important;}
 
     /* ── CHARTS ── */
-    .charts-grid { display:grid; grid-template-columns:1.5fr 1fr; gap:14px; margin-bottom:22px; }
-    .chart-card { background:var(--card-bg); border:1px solid var(--card-border); border-radius:10px; padding:18px; box-shadow:0 1px 3px rgba(0,0,0,.05); }
-    .chart-card h3 { font-size:13px; font-weight:700; color:#1a1d2e; margin-bottom:14px; }
+    .charts2{display:grid;grid-template-columns:1.5fr 1fr;gap:14px;margin-bottom:22px;}
+    .chart-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.05);}
+    .chart-card h3{font-size:13px;font-weight:700;color:#1a1d2e;margin-bottom:14px;}
 
-    /* ── TRAIN INFO ── */
-    .train-card { background:var(--card-bg); border:1px solid var(--card-border); border-radius:10px; padding:18px 22px; margin-bottom:22px; box-shadow:0 1px 3px rgba(0,0,0,.05); }
-    .train-card h3 { font-size:14px; font-weight:700; color:#1a1d2e; margin-bottom:14px; }
-    .train-compare { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-    .train-scenario { background:#f9fafb; border-radius:8px; padding:14px 16px; border:1px solid var(--card-border); }
-    .train-scenario h4 { font-size:12px; font-weight:700; margin-bottom:10px; }
-    .train-scenario h4.a { color:var(--a-color); }
-    .train-scenario h4.b { color:var(--b-color); }
-    .train-month-row { display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid #e5e7eb; font-size:12px; }
-    .train-month-row:last-child { border-bottom:none; }
-    .train-month-row .val { font-weight:700; color:#1a1d2e; }
+    /* ── MAP + SEARCH ── */
+    .map-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px;}
+    .map-card,.srch-card{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.05);}
+    .map-card iframe{width:100%;height:310px;border:none;display:block;}
+    .panel-hdr{padding:12px 18px;border-bottom:1px solid var(--border);background:#f9fafb;display:flex;align-items:center;gap:8px;}
+    .panel-hdr h3{font-size:13px;font-weight:700;color:#1a1d2e;}
+    .map-foot{padding:9px 18px;font-size:11px;color:var(--muted);background:rgba(15,148,136,.05);border-top:1px solid var(--border);}
+    .srch-body{padding:14px 16px;}
+    .srch-note{font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.6;}
+    .srch-btn{display:flex;align-items:center;gap:8px;padding:10px 13px;border-radius:7px;text-decoration:none;font-size:12px;font-weight:600;margin-bottom:8px;transition:all .15s;border:1px solid;}
+    .srch-btn:hover{transform:translateX(3px);}
+    .s-gmap  {background:rgba(66,133,244,.07);color:#1a5fd4;border-color:rgba(66,133,244,.2);}
+    .s-book  {background:rgba(0,115,230,.07); color:#0055a5;border-color:rgba(0,115,230,.2);}
+    .s-airbnb{background:rgba(255,90,95,.07); color:#c0392b;border-color:rgba(255,90,95,.2);}
+    .s-agoda {background:rgba(232,0,64,.07);  color:#9b2226;border-color:rgba(232,0,64,.2);}
+    .btn-sub{font-size:10px;font-weight:400;opacity:.8;}
 
-    /* ── SCHEDULE VISUAL ── */
-    .week-visual { background:var(--card-bg); border:1px solid var(--card-border); border-radius:10px; padding:18px 22px; margin-bottom:22px; box-shadow:0 1px 3px rgba(0,0,0,.05); }
-    .week-visual h3 { font-size:14px; font-weight:700; color:#1a1d2e; margin-bottom:16px; }
-    .week-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:6px; margin-bottom:10px; }
-    .day-cell { border-radius:8px; padding:10px 4px; text-align:center; border:1px solid; }
-    .day-cell .day-name { font-size:10px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; margin-bottom:4px; }
-    .day-cell .day-status { font-size:18px; }
-    .day-cell .day-label { font-size:10px; margin-top:3px; }
-    .day-cell.work  { background:rgba(26,95,212,0.07); border-color:rgba(26,95,212,0.2); color:var(--blue); }
-    .day-cell.home  { background:rgba(212,84,26,0.07); border-color:rgba(212,84,26,0.2); color:var(--orange); }
-    .day-cell.travel-out { background:rgba(124,58,237,0.07); border-color:rgba(124,58,237,0.2); color:var(--purple); }
-    .day-cell.travel-in  { background:rgba(5,150,82,0.07); border-color:rgba(5,150,82,0.2); color:var(--green); }
-    .legend { display:flex; gap:16px; flex-wrap:wrap; }
-    .legend-item { display:flex; align-items:center; gap:6px; font-size:11px; color:#374151; }
-    .legend-dot { width:10px; height:10px; border-radius:3px; }
+    /* ── TRAIN ── */
+    .train-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin-bottom:22px;box-shadow:0 1px 3px rgba(0,0,0,.05);}
+    .train-card h3{font-size:13px;font-weight:700;color:#1a1d2e;margin-bottom:12px;}
+    .train-route{display:flex;align-items:center;gap:12px;background:#f9fafb;border-radius:8px;padding:12px 16px;margin-bottom:10px;border:1px solid var(--border);}
+    .train-stn strong{font-size:15px;font-weight:800;color:#1a1d2e;display:block;}
+    .train-stn span{font-size:10px;color:var(--muted);}
+    .train-arr{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;}
+    .train-arr-line{color:var(--green);font-size:17px;}
+    .train-dur{font-size:10px;color:var(--muted);}
+    .fare-row{display:flex;gap:10px;}
+    .fare-item{flex:1;background:#f9fafb;border-radius:7px;padding:10px 13px;display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border);}
+    .fare-lbl{font-size:11px;color:var(--muted);}
+    .fare-val{font-size:14px;font-weight:700;color:var(--green);}
+    /* Plan B specific train section */
+    .b-train-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px;}
+    .b-train-item{background:#f9fafb;border:1px solid var(--border);border-radius:8px;padding:12px 14px;}
+    .b-train-month{font-size:11px;font-weight:700;color:#1a1d2e;margin-bottom:6px;}
+    .b-train-detail{font-size:11px;color:var(--muted);line-height:1.6;}
+    .b-train-cost{font-size:15px;font-weight:800;color:var(--b);margin-top:6px;}
+
+    /* ── TIMELINE ── */
+    .timeline-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin-bottom:22px;box-shadow:0 1px 3px rgba(0,0,0,.05);}
+    .timeline-card h3{font-size:13px;font-weight:700;color:#1a1d2e;margin-bottom:16px;}
+    .tl{display:flex;position:relative;}
+    .tl::before{content:'';position:absolute;top:20px;left:20px;right:20px;height:2px;background:var(--border);z-index:0;}
+    .tl-item{flex:1;text-align:center;position:relative;z-index:1;}
+    .tl-dot{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;margin:0 auto 8px;border:2px solid;}
+    .tl-dot.g{background:rgba(5,150,82,.1);border-color:var(--green);}
+    .tl-dot.o{background:rgba(212,84,26,.1);border-color:var(--orange);}
+    .tl-dot.p{background:rgba(124,58,237,.1);border-color:var(--purple);}
+    .tl-dot.b{background:rgba(26,95,212,.1);border-color:var(--blue);}
+    .tl-lbl{font-size:12px;font-weight:700;color:#1a1d2e;}
+    .tl-dt{font-size:10px;color:var(--muted);margin-top:2px;}
+    .tl-dtl{font-size:10px;color:var(--muted);margin-top:3px;}
+    .tl-note{margin-top:14px;padding:11px 14px;background:#f9fafb;border-radius:8px;font-size:12px;color:#374151;line-height:1.6;border:1px solid var(--border);}
+
+    /* ── MOTO INFO ── */
+    .moto-card{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--teal);border-radius:10px;padding:18px 20px;margin-bottom:22px;box-shadow:0 1px 3px rgba(0,0,0,.05);}
+    .moto-card h3{font-size:13px;font-weight:700;color:#1a1d2e;margin-bottom:12px;}
+    .moto-shops{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px;}
+    .moto-shop{background:#f9fafb;border-radius:8px;padding:11px 13px;border:1px solid var(--border);}
+    .moto-shop-name{font-size:12px;font-weight:700;color:#1a1d2e;margin-bottom:3px;}
+    .moto-shop-detail{font-size:11px;color:var(--muted);line-height:1.5;}
+    .moto-shop-price{font-size:14px;font-weight:800;color:var(--teal);margin-top:6px;}
+    .moto-tip{background:rgba(15,148,136,.06);border:1px solid rgba(15,148,136,.2);border-radius:8px;padding:11px 14px;font-size:12px;color:#374151;line-height:1.6;}
+
+    /* ── WEEKLY SCHEDULE (Plan B) ── */
+    .week-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin-bottom:22px;box-shadow:0 1px 3px rgba(0,0,0,.05);}
+    .week-card h3{font-size:13px;font-weight:700;color:#1a1d2e;margin-bottom:14px;}
+    .week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:10px;}
+    .day-cell{border-radius:8px;padding:9px 4px;text-align:center;border:1px solid;}
+    .day-cell .dn{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:3px;}
+    .day-cell .di{font-size:17px;}
+    .day-cell .dl{font-size:10px;margin-top:3px;}
+    .dc-work {background:rgba(26,95,212,.07);border-color:rgba(26,95,212,.2);color:var(--blue);}
+    .dc-home {background:rgba(212,84,26,.07);border-color:rgba(212,84,26,.2);color:var(--orange);}
+    .dc-out  {background:rgba(124,58,237,.07);border-color:rgba(124,58,237,.2);color:var(--purple);}
+    .dc-in   {background:rgba(5,150,82,.07);border-color:rgba(5,150,82,.2);color:var(--green);}
+    .legend{display:flex;gap:14px;flex-wrap:wrap;}
+    .leg-item{display:flex;align-items:center;gap:6px;font-size:11px;color:#374151;}
+    .leg-dot{width:10px;height:10px;border-radius:3px;}
 
     /* ── NOTES ── */
-    .notes-card { background:var(--card-bg); border:1px solid var(--card-border); border-left:3px solid var(--blue); border-radius:10px; padding:16px 20px; margin-bottom:22px; box-shadow:0 1px 3px rgba(0,0,0,.05); }
-    .notes-card h4 { font-size:11px; font-weight:700; color:var(--blue); letter-spacing:.5px; margin-bottom:10px; text-transform:uppercase; }
-    .note-item { font-size:12px; color:#4b5563; padding:3px 0; line-height:1.6; }
-    .note-item::before { content:'•'; color:var(--blue); margin-right:7px; }
+    .notes-card{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--blue);border-radius:10px;padding:16px 20px;margin-bottom:22px;box-shadow:0 1px 3px rgba(0,0,0,.05);}
+    .notes-card h4{font-size:11px;font-weight:700;color:var(--blue);letter-spacing:.5px;margin-bottom:8px;text-transform:uppercase;}
+    .ni{font-size:12px;color:#4b5563;padding:3px 0;line-height:1.6;}
+    .ni::before{content:'•';color:var(--blue);margin-right:7px;}
 
-    .footer { text-align:center; padding:16px 40px; color:var(--muted); font-size:11px; border-top:1px solid var(--card-border); background:var(--card-bg); }
+    /* ── COMPARISON TAB ── */
+    .savings-banner{background:linear-gradient(135deg,rgba(5,150,82,.08) 0%,rgba(5,150,82,.03) 100%);border:1px solid rgba(5,150,82,.25);border-left:4px solid var(--green);border-radius:10px;padding:16px 22px;margin-bottom:22px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+    .sv-main{font-size:13px;color:#374151;}
+    .sv-main strong{color:var(--green);font-size:24px;font-weight:800;}
+    .sv-detail{font-size:11px;color:var(--muted);margin-top:3px;}
+    .chips{display:flex;gap:8px;flex-wrap:wrap;}
+    .chip{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid;}
+    .chip-g{background:rgba(5,150,82,.1);color:var(--green);border-color:rgba(5,150,82,.25);}
+    .chip-r{background:rgba(220,38,38,.08);color:var(--red);border-color:rgba(220,38,38,.2);}
+    .sc-cards{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px;}
+    .sc-card{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.05);}
+    .sc-hdr{padding:12px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+    .sc-hdr.a{background:rgba(26,95,212,.05);border-top:3px solid var(--a);}
+    .sc-hdr.b{background:rgba(5,150,82,.05);border-top:3px solid var(--b);}
+    .sc-hdr-l{display:flex;align-items:center;gap:8px;}
+    .sc-dot{width:10px;height:10px;border-radius:50%;}
+    .sc-dot.a{background:var(--a);}
+    .sc-dot.b{background:var(--b);}
+    .sc-hdr-l h3{font-size:13px;font-weight:700;}
+    .sc-hdr-l h3.a{color:var(--a);}
+    .sc-hdr-l h3.b{color:var(--b);}
+    .sc-body{padding:14px 18px;}
+    .sc-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #f3f4f6;}
+    .sc-row:last-child{border-bottom:none;}
+    .sc-row-lbl{font-size:12px;color:var(--muted);}
+    .sc-row-val{font-size:13px;font-weight:700;color:#1a1d2e;}
+    .sc-foot{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:2px solid var(--border);}
+    .sc-foot span{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+    .sc-foot strong{font-size:20px;font-weight:800;}
+    .sc-foot strong.a{color:var(--a);}
+    .sc-foot strong.b{color:var(--b);}
+    /* Comparison inner tabs */
+    .inner-tabs{display:flex;background:#f9fafb;border-bottom:1px solid var(--border);}
+    .itab{flex:1;padding:10px;text-align:center;font-size:12px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--muted);border-bottom:2px solid transparent;transition:all .15s;}
+    .itab.ia{color:var(--a);border-bottom-color:var(--a);background:rgba(26,95,212,.04);}
+    .itab.ib{color:var(--b);border-bottom-color:var(--b);background:rgba(5,150,82,.04);}
+    .itab.id{color:var(--orange);border-bottom-color:var(--orange);background:rgba(212,84,26,.04);}
+
+    /* ── FOOTER ── */
+    .footer{text-align:center;padding:16px 36px;color:var(--muted);font-size:11px;border-top:1px solid var(--border);background:var(--card);margin-top:8px;}
   </style>
 </head>
 <body>
 
-<div class="header">
-  <div class="header-top">
-    <div class="coe-badge">COE</div>
-    <h1>花蓮差旅費預算比較 | Deployment Schedule Comparison</h1>
+<!-- ═══ HEADER ═══ -->
+<div class="hdr">
+  <div class="hdr-top">
+    <div class="badge">COE</div>
+    <h1>花蓮差旅費預算 | Agent Deployment Budget — 花蓮縣花蓮市中山路一段386號</h1>
   </div>
-  <div class="header-meta">
-    <span>2 Agents</span> · <span>Jun 1 – Aug 31, 2026</span> ·
-    Office: <span>花蓮縣花蓮市中山路一段386號</span> · Rotation every <span>30 days</span>
+  <div class="hdr-meta">
+    <span>2 Agents</span> · <span>Jun 1 – Aug 31, 2026</span> · Rotation every <span>30 days</span>
   </div>
 </div>
 
-<div class="main">
-
-  <!-- SCENARIO LABELS -->
-  <div class="sec">Two Scenarios</div>
-  <div class="scenario-headers">
-    <div class="scenario-label a">
-      <div class="scenario-dot a"></div>
-      <div>
-        <div class="scenario-title a">Plan A — Stay All Month</div>
-        <div class="scenario-desc">Agents stay in 花蓮 continuously. Travel home once per month at rotation only.</div>
+<!-- ═══ SHARED CONTROLS ═══ -->
+<div class="ctrl-wrap">
+  <div class="ctrl-inner">
+    <div class="sr">
+      <label>🏠 Accommodation (per person/night) <strong style="color:var(--blue)">NT$<span id="sAccomLbl">2,200</span></strong></label>
+      <input type="range" id="sAccom" min="800" max="2200" step="50" value="2200" oninput="update()"/>
+      <div class="hints"><span>NT$800</span><span>NT$1,500</span><span>NT$2,200 Max</span></div>
+    </div>
+    <div class="sr">
+      <label>🚆 Train (one-way/person) <strong style="color:var(--purple)">NT$<span id="sTrainLbl">450</span></strong></label>
+      <input type="range" id="sTrain" min="350" max="600" step="10" value="450" oninput="update()"/>
+      <div class="hints"><span>NT$350 普通</span><span>NT$450 自強</span><span>NT$600 太魯閣</span></div>
+    </div>
+    <div class="sr">
+      <label>🏍️ Motorcycle (per bike/day) <strong style="color:var(--teal)">NT$<span id="sMotoLbl">300</span></strong></label>
+      <input type="range" id="sMoto" min="200" max="500" step="10" value="300" oninput="update()"/>
+      <div class="hints"><span>NT$200 Economy</span><span>NT$300 125cc</span><span>NT$500 Premium</span></div>
+    </div>
+    <div class="bike-ctrl">
+      <label>🏍️ Bikes:</label>
+      <div class="bike-btns">
+        <button class="tbtn" id="b1" onclick="setBikes(1)">1 shared</button>
+        <button class="tbtn active" id="b2" onclick="setBikes(2)">2 (one each)</button>
       </div>
     </div>
-    <div class="scenario-label b">
-      <div class="scenario-dot b"></div>
-      <div>
-        <div class="scenario-title b">Plan B — Weekend Home</div>
-        <div class="scenario-desc">Check in Sunday night → check out Friday morning. Travel to Taipei every weekend.</div>
+  </div>
+</div>
+
+<!-- ═══ TAB NAV ═══ -->
+<div class="tab-nav">
+  <div class="tab-nav-inner">
+    <button class="tnav-btn active-a" id="tnA" onclick="showPage('A')">📅 Plan A — Stay All Month</button>
+    <button class="tnav-btn" id="tnB" onclick="showPage('B')">🏠 Plan B — Weekend Home</button>
+    <button class="tnav-btn" id="tnC" onclick="showPage('C')">📊 Comparison</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE A — STAY ALL MONTH
+══════════════════════════════════════════ -->
+<div class="page active" id="pageA">
+
+  <div class="sec">Budget Summary — Plan A (Stay All Month, 92 nights)</div>
+  <div class="cards5">
+    <div class="card ct-green"><div class="card-lbl">Total Budget</div><div class="card-val" id="aTotal">—<span>NTD</span></div><div class="card-sub">92 nights · 3 months</div></div>
+    <div class="card ct-blue"><div class="card-lbl">Accommodation</div><div class="card-val" id="aAccom">—<span>NTD</span></div><div class="card-sub" id="aAccomSub">@ 2,200/pax/night</div></div>
+    <div class="card ct-orange"><div class="card-lbl">Meals (Weekdays)</div><div class="card-val" id="aMeals">—<span>NTD</span></div><div class="card-sub">66 weekdays · 2 pax</div></div>
+    <div class="card ct-purple"><div class="card-lbl">Travel (Train)</div><div class="card-val" id="aTravel">—<span>NTD</span></div><div class="card-sub">3 round trips · 2 pax</div></div>
+    <div class="card ct-teal"><div class="card-lbl">Motorcycle</div><div class="card-val" id="aMoto">—<span>NTD</span></div><div class="card-sub" id="aMotoSub">2 bikes · 92 days</div></div>
+  </div>
+
+  <div class="sec">Monthly Breakdown — Plan A</div>
+  <div class="tbl-card"><table>
+    <thead><tr><th>Month</th><th>Nights</th><th>Weekdays</th><th>Accommodation</th><th>Meals</th><th>Travel (1 RT)</th><th>🏍️ Moto</th><th>Monthly Total</th><th>Per Person</th></tr></thead>
+    <tbody id="tbA"></tbody>
+    <tfoot><tr><td>Total</td><td>92</td><td>66</td><td id="afAc">—</td><td id="afMe">—</td><td id="afTr">—</td><td id="afMo">—</td><td id="afTo">—</td><td id="afPe">—</td></tr></tfoot>
+  </table></div>
+
+  <div class="sec">Cost Visualization — Plan A</div>
+  <div class="charts2">
+    <div class="chart-card"><h3>Monthly Cost Breakdown by Category</h3><canvas id="aBarC" height="200"></canvas></div>
+    <div class="chart-card"><h3>Budget Composition (3-Month Total)</h3><canvas id="aDoughC" height="200"></canvas></div>
+  </div>
+
+  <div class="sec">📍 Office Location & Accommodation Search</div>
+  <div class="map-grid">
+    <div class="map-card">
+      <div class="panel-hdr"><h3>🗺️ 花蓮縣花蓮市中山路一段386號</h3></div>
+      <iframe src="https://maps.google.com/maps?q=花蓮縣花蓮市中山路一段386號&output=embed&hl=zh-TW&z=15" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      <div class="map-foot">📍 Aim for accommodation within <strong>1.5 km</strong> — walkable or very short ride</div>
+    </div>
+    <div class="srch-card">
+      <div class="panel-hdr"><h3>🔍 Find Accommodation Near Office</h3></div>
+      <div class="srch-body">
+        <div class="srch-note">Look for <strong>月租 (monthly rates)</strong> for best 30-day value. Plan A agents stay the full month — ask shops for long-stay discounts.</div>
+        <a class="srch-btn s-gmap"  href="https://www.google.com/maps/search/hotels+near+花蓮縣花蓮市中山路一段386號/@23.985,121.601,15z" target="_blank"><span>🗺️</span><div><div>Google Maps Hotels</div><div class="btn-sub">Live ratings, photos, pricing</div></div></a>
+        <a class="srch-btn s-book"  href="https://www.booking.com/searchresults.html?dest_id=900047916&dest_type=landmark&checkin=2026-06-01&checkout=2026-06-30&no_rooms=2&group_adults=2&ss=花蓮市中山路" target="_blank"><span>🏨</span><div><div>Booking.com — Hualien City</div><div class="btn-sub">Hotels & guesthouses · Free cancellation</div></div></a>
+        <a class="srch-btn s-airbnb" href="https://www.airbnb.com/s/花蓮市/homes?checkin=2026-06-01&checkout=2026-06-30&adults=2" target="_blank"><span>🏠</span><div><div>Airbnb — 花蓮市</div><div class="btn-sub">Entire apartments · Monthly discounts</div></div></a>
+        <a class="srch-btn s-agoda" href="https://www.agoda.com/search?city=2030&checkIn=2026-06-01&checkOut=2026-06-30&rooms=1&adults=2&children=0&los=30" target="_blank"><span>🌏</span><div><div>Agoda — 花蓮</div><div class="btn-sub">Great Taiwan rates · Often cheapest</div></div></a>
       </div>
     </div>
   </div>
 
-  <!-- SAVINGS BANNER -->
-  <div class="savings-banner" id="savingsBanner">
-    <div>
-      <div class="savings-main">Plan B saves <strong id="savingsAmt">—</strong> over 3 months</div>
-      <div class="savings-detail" id="savingsDetail">—</div>
+  <div class="sec">🚄 Train Travel — Plan A</div>
+  <div class="train-card">
+    <h3>Monthly rotation — one round trip per person at start/end of each 30-day deployment</h3>
+    <div class="train-route">
+      <div class="train-stn"><strong>台北</strong><span>Taipei Station</span></div>
+      <div class="train-arr"><div class="train-arr-line">—— 🚆 ——→</div><div class="train-dur">~2 hrs (太魯閣/自強) · ~2.5 hrs (普通自強)</div></div>
+      <div class="train-stn"><strong>花蓮</strong><span>Hualien Station</span></div>
     </div>
-    <div class="savings-chips" id="savingsChips"></div>
-  </div>
-
-  <!-- CONTROLS -->
-  <div class="controls-card">
-    <div class="controls-header">
-      <h3>⚙️ Adjust Parameters — both scenarios update live</h3>
-      <span class="live-badge">LIVE UPDATE</span>
-    </div>
-    <div class="sliders-grid">
-      <div class="sr">
-        <label>Accommodation (per person/night) <strong style="color:var(--blue)">NT$<span id="accomLbl">2,200</span></strong></label>
-        <input type="range" id="accomSlider" min="800" max="2200" step="50" value="2200" oninput="update()" />
-        <div class="hints"><span>NT$800 Budget</span><span>NT$1,500 Mid</span><span>NT$2,200 Max</span></div>
-      </div>
-      <div class="sr">
-        <label>Train ticket (one-way/person) <strong style="color:var(--purple)">NT$<span id="trainLbl">450</span></strong></label>
-        <input type="range" id="trainSlider" min="350" max="600" step="10" value="450" oninput="update()" />
-        <div class="hints"><span>NT$350 普通</span><span>NT$450 自強</span><span>NT$600 太魯閣</span></div>
-      </div>
-      <div class="sr">
-        <label>🏍️ Motorcycle (per bike/day) <strong style="color:var(--teal)">NT$<span id="motoLbl">300</span></strong></label>
-        <input type="range" id="motoSlider" min="200" max="500" step="10" value="300" oninput="update()" />
-        <div class="hints"><span>NT$200 Economy</span><span>NT$300 125cc</span><span>NT$500 Premium</span></div>
-      </div>
-    </div>
-    <div class="bike-row">
-      <span class="bike-lbl">🏍️ Bikes:</span>
-      <button class="tbtn" id="b1" onclick="setBikes(1)">1 (shared)</button>
-      <button class="tbtn active" id="b2" onclick="setBikes(2)">2 (one each)</button>
-      <span id="bikeHint">Each agent has their own bike</span>
+    <div class="fare-row">
+      <div class="fare-item"><div><div class="fare-lbl">普通自強號</div><div style="font-size:10px;color:var(--muted)">Standard Express</div></div><div class="fare-val">~NT$375</div></div>
+      <div class="fare-item"><div><div class="fare-lbl">自強號 (Tze-Chiang)</div><div style="font-size:10px;color:var(--muted)">Limited Express</div></div><div class="fare-val">~NT$448</div></div>
+      <div class="fare-item"><div><div class="fare-lbl">太魯閣/普悠瑪</div><div style="font-size:10px;color:var(--muted)">Taroko / Puyuma</div></div><div class="fare-val">~NT$512</div></div>
+      <div class="fare-item" style="border-left:2px solid var(--green)"><div><div class="fare-lbl">Round trip / person</div><div style="font-size:10px;color:var(--muted)">Based on slider</div></div><div class="fare-val" id="aRT">NT$900</div></div>
     </div>
   </div>
 
-  <!-- SCENARIO SUMMARY CARDS -->
-  <div class="sec">Scenario Totals</div>
-  <div class="compare-grid">
-    <div class="scenario-card">
-      <div class="sc-head a">
-        <div class="sc-head-left"><div class="scenario-dot a"></div><h3 class="a">Plan A — Stay All Month</h3></div>
-        <span style="font-size:11px;color:var(--muted)">92 nights</span>
-      </div>
-      <div class="sc-body">
-        <div class="sc-row"><span class="sc-row-label">🏠 Accommodation</span><span class="sc-row-value" id="aAccom">—</span></div>
-        <div class="sc-row"><span class="sc-row-label">🍱 Meals (weekdays)</span><span class="sc-row-value" id="aMeals">—</span></div>
-        <div class="sc-row"><span class="sc-row-label">🚆 Train travel</span><span class="sc-row-value" id="aTravel">—</span></div>
-        <div class="sc-row"><span class="sc-row-label">🏍️ Motorcycle</span><span class="sc-row-value" id="aMoto">—</span></div>
-        <div class="sc-total"><span>3-Month Total</span><strong class="a" id="aTotal">—</strong></div>
-        <div style="text-align:right;font-size:11px;color:var(--muted);margin-top:4px">Per person: <span id="aPerPerson" style="font-weight:700;color:var(--a-color)">—</span></div>
-      </div>
+  <div class="sec">Agent Rotation Schedule — Plan A</div>
+  <div class="timeline-card">
+    <h3>📅 30-Day Deployment — 2 Agents per Batch</h3>
+    <div class="tl">
+      <div class="tl-item"><div class="tl-dot g">✈️</div><div class="tl-lbl">June 1</div><div class="tl-dt">Deployment</div><div class="tl-dtl">Batch 1 → 花蓮</div></div>
+      <div class="tl-item"><div class="tl-dot o">🔄</div><div class="tl-lbl">Jul 1</div><div class="tl-dt">Rotation #1</div><div class="tl-dtl">Batch 1 ← 台北 · Batch 2 → 花蓮</div></div>
+      <div class="tl-item"><div class="tl-dot p">🔄</div><div class="tl-lbl">Aug 1</div><div class="tl-dt">Rotation #2</div><div class="tl-dtl">Batch 2 ← 台北 · Batch 3 → 花蓮</div></div>
+      <div class="tl-item"><div class="tl-dot b">🏁</div><div class="tl-lbl">Sep 1</div><div class="tl-dt">End</div><div class="tl-dtl">Batch 3 ← 台北</div></div>
     </div>
-    <div class="scenario-card">
-      <div class="sc-head b">
-        <div class="sc-head-left"><div class="scenario-dot b"></div><h3 class="b">Plan B — Weekend Home</h3></div>
-        <span style="font-size:11px;color:var(--muted)">66 nights</span>
-      </div>
-      <div class="sc-body">
-        <div class="sc-row"><span class="sc-row-label">🏠 Accommodation</span><span class="sc-row-value" id="bAccom">—</span></div>
-        <div class="sc-row"><span class="sc-row-label">🍱 Meals (weekdays)</span><span class="sc-row-value" id="bMeals">—</span></div>
-        <div class="sc-row"><span class="sc-row-label">🚆 Train travel</span><span class="sc-row-value" id="bTravel">—</span></div>
-        <div class="sc-row"><span class="sc-row-label">🏍️ Motorcycle</span><span class="sc-row-value" id="bMoto">—</span></div>
-        <div class="sc-total"><span>3-Month Total</span><strong class="b" id="bTotal">—</strong></div>
-        <div style="text-align:right;font-size:11px;color:var(--muted);margin-top:4px">Per person: <span id="bPerPerson" style="font-weight:700;color:var(--b-color)">—</span></div>
-      </div>
-    </div>
+    <div class="tl-note">💡 <strong>Bike handover tip:</strong> At each rotation, transfer the motorcycle contract to the incoming agent instead of re-renting — avoids paying new deposit fees each month.</div>
   </div>
 
-  <!-- WEEKLY SCHEDULE VISUAL -->
-  <div class="sec">Plan B — Weekly Schedule</div>
-  <div class="week-visual">
-    <h3>📅 Typical Week — Plan B (Weekend Home)</h3>
+  <div class="sec">🏍️ Motorcycle Rental — 花蓮 Market Rates</div>
+  <div class="moto-card">
+    <h3>Known Shops Near Hualien Station (花蓮火車站)</h3>
+    <div class="moto-shops">
+      <div class="moto-shop"><div class="moto-shop-name">行易租車 (HualienTour)</div><div class="moto-shop-detail">Near Station · Helmet + phone mount + USB · 100cc / 125cc<br><a href="https://www.hualientour.com.tw/car2.html" target="_blank" style="color:var(--teal);font-size:11px;">View price list →</a></div><div class="moto-shop-price">NT$250 / day</div></div>
+      <div class="moto-shop"><div class="moto-shop-name">鋐運租車 (HongYun)</div><div class="moto-shop-detail">Online net rate · 24hr · USB + Type-C · 125cc<br><a href="https://hongyun-rent.com/" target="_blank" style="color:var(--teal);font-size:11px;">View website →</a></div><div class="moto-shop-price">NT$300 / day</div></div>
+      <div class="moto-shop"><div class="moto-shop-name">長城租車 (Great Wall)</div><div class="moto-shop-detail">3 min from Station · Multiple 125cc models<br><a href="https://www.funhualien.com.tw/product/cc-scooter/" target="_blank" style="color:var(--teal);font-size:11px;">View listing →</a></div><div class="moto-shop-price">NT$250–450 / day</div></div>
+    </div>
+    <div class="moto-tip">💡 <strong>Monthly tip:</strong> Shops commonly offer <strong style="color:var(--teal)">20–40% discount for 30-day rentals</strong> if you negotiate directly. Estimated monthly cost/bike: <strong style="color:var(--teal)">NT$4,500–7,000</strong> vs ~NT$9,000 at daily rate.</div>
+  </div>
+
+  <div class="notes-card">
+    <h4>📋 Plan A Assumptions</h4>
+    <div class="ni">Accommodation at <strong>max NT$2,200/person/night</strong> × 2 pax × all 92 nights (incl. weekends).</div>
+    <div class="ni">Meals at <strong>NT$600/person/weekday only</strong> — June: 22 days · July: 23 days · August: 21 days = 66 total.</div>
+    <div class="ni">Travel: <strong>one round-trip per person at each monthly rotation</strong> — 3 months × 2 pax × slider fare.</div>
+    <div class="ni">Motorcycle budgeted for <strong>all 92 calendar days</strong>. Monthly negotiation may reduce by 20–40%. Recommend negotiating 月租 directly with the shop.</div>
+    <div class="ni">Not included: fuel, work equipment, mobile data. Recommend <strong>10–15% contingency buffer</strong>.</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE B — WEEKEND HOME
+══════════════════════════════════════════ -->
+<div class="page" id="pageB">
+
+  <div class="sec">Budget Summary — Plan B (Weekend Home, 66 nights)</div>
+  <div class="cards5">
+    <div class="card ct-green"><div class="card-lbl">Total Budget</div><div class="card-val" id="bTotal">—<span>NTD</span></div><div class="card-sub">66 nights · 3 months</div></div>
+    <div class="card ct-blue"><div class="card-lbl">Accommodation</div><div class="card-val" id="bAccom">—<span>NTD</span></div><div class="card-sub" id="bAccomSub">Sun night–Thu night only</div></div>
+    <div class="card ct-orange"><div class="card-lbl">Meals (Weekdays)</div><div class="card-val" id="bMeals">—<span>NTD</span></div><div class="card-sub">66 weekdays · 2 pax</div></div>
+    <div class="card ct-purple"><div class="card-lbl">Travel (Train)</div><div class="card-val" id="bTravel">—<span>NTD</span></div><div class="card-sub">26 one-way trips/pax</div></div>
+    <div class="card ct-teal"><div class="card-lbl">Motorcycle</div><div class="card-val" id="bMoto">—<span>NTD</span></div><div class="card-sub" id="bMotoSub">Weekday nights only</div></div>
+  </div>
+
+  <div class="sec">Typical Weekly Schedule — Plan B</div>
+  <div class="week-card">
+    <h3>📅 Sunday night check-in → Friday morning check-out, every week</h3>
     <div class="week-grid">
-      <div class="day-cell travel-in">
-        <div class="day-name">Sun</div>
-        <div class="day-status">🚆</div>
-        <div class="day-label">Return to 花蓮</div>
-      </div>
-      <div class="day-cell work">
-        <div class="day-name">Mon</div>
-        <div class="day-status">💼</div>
-        <div class="day-label">In Office</div>
-      </div>
-      <div class="day-cell work">
-        <div class="day-name">Tue</div>
-        <div class="day-status">💼</div>
-        <div class="day-label">In Office</div>
-      </div>
-      <div class="day-cell work">
-        <div class="day-name">Wed</div>
-        <div class="day-status">💼</div>
-        <div class="day-label">In Office</div>
-      </div>
-      <div class="day-cell work">
-        <div class="day-name">Thu</div>
-        <div class="day-status">💼</div>
-        <div class="day-label">In Office</div>
-      </div>
-      <div class="day-cell travel-out">
-        <div class="day-name">Fri</div>
-        <div class="day-status">🚆</div>
-        <div class="day-label">Leave to 台北</div>
-      </div>
-      <div class="day-cell home">
-        <div class="day-name">Sat</div>
-        <div class="day-status">🏠</div>
-        <div class="day-label">Home in 台北</div>
-      </div>
+      <div class="day-cell dc-in"><div class="dn">Sun</div><div class="di">🚆</div><div class="dl">Return to 花蓮</div></div>
+      <div class="day-cell dc-work"><div class="dn">Mon</div><div class="di">💼</div><div class="dl">In Office</div></div>
+      <div class="day-cell dc-work"><div class="dn">Tue</div><div class="di">💼</div><div class="dl">In Office</div></div>
+      <div class="day-cell dc-work"><div class="dn">Wed</div><div class="di">💼</div><div class="dl">In Office</div></div>
+      <div class="day-cell dc-work"><div class="dn">Thu</div><div class="di">💼</div><div class="dl">In Office</div></div>
+      <div class="day-cell dc-out"><div class="dn">Fri</div><div class="di">🚆</div><div class="dl">Leave to 台北</div></div>
+      <div class="day-cell dc-home"><div class="dn">Sat</div><div class="di">🏠</div><div class="dl">Home in 台北</div></div>
     </div>
     <div class="legend">
-      <div class="legend-item"><div class="legend-dot" style="background:rgba(26,95,212,0.4)"></div>In 花蓮 (hotel + bike)</div>
-      <div class="legend-item"><div class="legend-dot" style="background:rgba(124,58,237,0.4)"></div>Friday — check out, travel to Taipei (morning)</div>
-      <div class="legend-item"><div class="legend-dot" style="background:rgba(5,150,82,0.4)"></div>Sunday — travel back to 花蓮 (evening)</div>
-      <div class="legend-item"><div class="legend-dot" style="background:rgba(212,84,26,0.4)"></div>Saturday — full rest day in Taipei (no Hualien cost)</div>
+      <div class="leg-item"><div class="leg-dot" style="background:rgba(26,95,212,.4)"></div>In 花蓮 (hotel + bike)</div>
+      <div class="leg-item"><div class="leg-dot" style="background:rgba(124,58,237,.4)"></div>Friday — check out, train to Taipei (morning)</div>
+      <div class="leg-item"><div class="leg-dot" style="background:rgba(5,150,82,.4)"></div>Sunday — train back to 花蓮 (evening)</div>
+      <div class="leg-item"><div class="leg-dot" style="background:rgba(212,84,26,.4)"></div>Saturday — rest day in Taipei (no Hualien cost)</div>
     </div>
   </div>
 
-  <!-- TRAIN TRAVEL COMPARISON -->
-  <div class="sec">Train Travel Breakdown</div>
+  <div class="sec">Monthly Breakdown — Plan B</div>
+  <div class="tbl-card"><table>
+    <thead><tr><th>Month</th><th>Hualien Nights</th><th>Weekdays</th><th>Accommodation</th><th>Meals</th><th>Travel (one-way trips)</th><th>🏍️ Moto</th><th>Monthly Total</th><th>Per Person</th></tr></thead>
+    <tbody id="tbB"></tbody>
+    <tfoot><tr><td>Total</td><td>66</td><td>66</td><td id="bfAc">—</td><td id="bfMe">—</td><td id="bfTr">—</td><td id="bfMo">—</td><td id="bfTo">—</td><td id="bfPe">—</td></tr></tfoot>
+  </table></div>
+
+  <div class="sec">Cost Visualization — Plan B</div>
+  <div class="charts2">
+    <div class="chart-card"><h3>Monthly Cost Breakdown by Category</h3><canvas id="bBarC" height="200"></canvas></div>
+    <div class="chart-card"><h3>Budget Composition (3-Month Total)</h3><canvas id="bDoughC" height="200"></canvas></div>
+  </div>
+
+  <div class="sec">📍 Office Location & Accommodation Search</div>
+  <div class="map-grid">
+    <div class="map-card">
+      <div class="panel-hdr"><h3>🗺️ 花蓮縣花蓮市中山路一段386號</h3></div>
+      <iframe src="https://maps.google.com/maps?q=花蓮縣花蓮市中山路一段386號&output=embed&hl=zh-TW&z=15" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      <div class="map-foot">📍 Plan B agents travel weekly — a <strong>2–3 km radius</strong> is fine given motorcycle access</div>
+    </div>
+    <div class="srch-card">
+      <div class="panel-hdr"><h3>🔍 Find Accommodation Near Office</h3></div>
+      <div class="srch-body">
+        <div class="srch-note">Plan B agents check in <strong>Sunday evening</strong> and check out <strong>Friday morning</strong>. Look for weekly rates or short-term stays. With motorcycles, a 2–3 km radius works fine.</div>
+        <a class="srch-btn s-gmap"  href="https://www.google.com/maps/search/hotels+near+花蓮縣花蓮市中山路一段386號/@23.985,121.601,15z" target="_blank"><span>🗺️</span><div><div>Google Maps Hotels</div><div class="btn-sub">Live ratings, photos, pricing</div></div></a>
+        <a class="srch-btn s-book"  href="https://www.booking.com/searchresults.html?dest_id=900047916&dest_type=landmark&checkin=2026-06-01&checkout=2026-06-07&no_rooms=2&group_adults=2&ss=花蓮市中山路" target="_blank"><span>🏨</span><div><div>Booking.com — Weekly stays</div><div class="btn-sub">Filter by Mon–Fri bookings</div></div></a>
+        <a class="srch-btn s-airbnb" href="https://www.airbnb.com/s/花蓮市/homes?checkin=2026-06-01&checkout=2026-06-30&adults=2" target="_blank"><span>🏠</span><div><div>Airbnb — 花蓮市</div><div class="btn-sub">Weekly rates available · Entire apartments</div></div></a>
+        <a class="srch-btn s-agoda" href="https://www.agoda.com/search?city=2030&checkIn=2026-06-01&checkOut=2026-06-07&rooms=1&adults=2&children=0" target="_blank"><span>🌏</span><div><div>Agoda — 花蓮</div><div class="btn-sub">Short-stay options · Good weekly rates</div></div></a>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">🚆 Train Travel — Plan B (Weekly Commute)</div>
   <div class="train-card">
-    <h3>🚆 Train Trips Comparison — Plan A vs Plan B</h3>
-    <div class="train-compare">
-      <div class="train-scenario">
-        <h4 class="a">Plan A — One round trip per month (at rotation)</h4>
-        <div class="train-month-row"><span>June 2026</span><span class="val" id="aTravelJun">—</span><span style="font-size:10px;color:var(--muted)">2 pax × 1 RT</span></div>
-        <div class="train-month-row"><span>July 2026</span><span class="val" id="aTravelJul">—</span><span style="font-size:10px;color:var(--muted)">2 pax × 1 RT</span></div>
-        <div class="train-month-row"><span>August 2026</span><span class="val" id="aTravelAug">—</span><span style="font-size:10px;color:var(--muted)">2 pax × 1 RT</span></div>
-        <div class="train-month-row" style="font-weight:700;border-top:1px solid var(--card-border);margin-top:6px;padding-top:6px"><span>Total</span><span style="color:var(--a-color)" id="aTravelTotal">—</span><span style="font-size:10px;color:var(--muted)">6 one-way trips/pax</span></div>
+    <h3>Every Friday (Hualien → Taipei) + Every Sunday (Taipei → Hualien)</h3>
+    <div class="train-route">
+      <div class="train-stn"><strong>台北</strong><span>Taipei Station</span></div>
+      <div class="train-arr"><div class="train-arr-line">⇌ 🚆 ⇌</div><div class="train-dur">~2 hrs (太魯閣/自強) · Book early — sells out Fri/Sun</div></div>
+      <div class="train-stn"><strong>花蓮</strong><span>Hualien Station</span></div>
+    </div>
+    <div class="b-train-grid">
+      <div class="b-train-item">
+        <div class="b-train-month">June 2026</div>
+        <div class="b-train-detail">4 Fridays out + 4 Sundays back<br>= 8 one-way trips/person</div>
+        <div class="b-train-cost" id="bTrJun">—</div>
       </div>
-      <div class="train-scenario">
-        <h4 class="b">Plan B — Every weekend (Fri out + Sun back)</h4>
-        <div class="train-month-row"><span>June 2026</span><span class="val" id="bTravelJun">—</span><span style="font-size:10px;color:var(--muted)">2 pax × 8 one-way</span></div>
-        <div class="train-month-row"><span>July 2026</span><span class="val" id="bTravelJul">—</span><span style="font-size:10px;color:var(--muted)">2 pax × 9 one-way</span></div>
-        <div class="train-month-row"><span>August 2026</span><span class="val" id="bTravelAug">—</span><span style="font-size:10px;color:var(--muted)">2 pax × 9 one-way</span></div>
-        <div class="train-month-row" style="font-weight:700;border-top:1px solid var(--card-border);margin-top:6px;padding-top:6px"><span>Total</span><span style="color:var(--b-color)" id="bTravelTotal">—</span><span style="font-size:10px;color:var(--muted)">26 one-way trips/pax</span></div>
+      <div class="b-train-item">
+        <div class="b-train-month">July 2026</div>
+        <div class="b-train-detail">5 Fridays out + 4 Sundays back<br>= 9 one-way trips/person</div>
+        <div class="b-train-cost" id="bTrJul">—</div>
+      </div>
+      <div class="b-train-item">
+        <div class="b-train-month">August 2026</div>
+        <div class="b-train-detail">4 Fridays out + 5 Sundays back<br>= 9 one-way trips/person</div>
+        <div class="b-train-cost" id="bTrAug">—</div>
+      </div>
+    </div>
+    <div style="margin-top:10px;padding:10px 14px;background:#f9fafb;border-radius:8px;border:1px solid var(--border);font-size:12px;color:#374151;line-height:1.6">
+      ⚠️ <strong>Book early!</strong> 台鐵 opens 28 days in advance. Friday evening and Sunday evening trains sell out fast. Recommend setting a reminder and booking immediately when the window opens.
+    </div>
+  </div>
+
+  <div class="sec">🏍️ Motorcycle Rental — Plan B</div>
+  <div class="moto-card">
+    <h3>Bikes used Sunday–Friday only. Parked or returned on weekends.</h3>
+    <div class="moto-shops">
+      <div class="moto-shop"><div class="moto-shop-name">行易租車 (HualienTour)</div><div class="moto-shop-detail">Near Station · Ask about weekly rates for recurring Mon–Fri use<br><a href="https://www.hualientour.com.tw/car2.html" target="_blank" style="color:var(--teal);font-size:11px;">View price list →</a></div><div class="moto-shop-price">NT$250 / day</div></div>
+      <div class="moto-shop"><div class="moto-shop-name">鋐運租車 (HongYun)</div><div class="moto-shop-detail">Ask about leaving bike parked over weekends on a monthly contract<br><a href="https://hongyun-rent.com/" target="_blank" style="color:var(--teal);font-size:11px;">View website →</a></div><div class="moto-shop-price">NT$300 / day</div></div>
+      <div class="moto-shop"><div class="moto-shop-name">長城租車 (Great Wall)</div><div class="moto-shop-detail">3 min from Station · Check if they allow weekday-only monthly packages<br><a href="https://www.funhualien.com.tw/product/cc-scooter/" target="_blank" style="color:var(--teal);font-size:11px;">View listing →</a></div><div class="moto-shop-price">NT$250–450 / day</div></div>
+    </div>
+    <div class="moto-tip">💡 <strong>Plan B moto tip:</strong> Budget shows <strong style="color:var(--teal)">22 days/month</strong> (accommodation nights only). Some shops may allow leaving the bike parked over weekends on a monthly contract at no extra charge — always ask! If they require full-month rental, moto cost becomes same as Plan A.</div>
+  </div>
+
+  <div class="notes-card" style="border-left-color:var(--b)">
+    <h4 style="color:var(--b)">📋 Plan B Assumptions</h4>
+    <div class="ni">Accommodation: <strong>Sunday night through Thursday night = 5 nights/week</strong>. All 3 months = 22 Hualien nights each (8–9 Fri/Sat nights removed per month).</div>
+    <div class="ni">Train travel: <strong>every Friday (Hualien→Taipei) + every Sunday (Taipei→Hualien)</strong>. June: 8 · July: 9 · August: 9 = 26 one-way trips per person total.</div>
+    <div class="ni">Motorcycle: budgeted for <strong>22 accommodation nights/month</strong> (weekday use only). If shop requires full-month, cost = same as Plan A.</div>
+    <div class="ni">Meals remain <strong>identical to Plan A</strong> — NT$600/person/weekday, weekends not budgeted (personal cost while in Taipei).</div>
+    <div class="ni">Agent wellbeing: spending every weekend at home significantly reduces long-deployment fatigue — may benefit performance and retention.</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE C — COMPARISON
+══════════════════════════════════════════ -->
+<div class="page" id="pageC">
+
+  <div class="sec" style="margin-top:0">Scenario Comparison at Current Parameter Settings</div>
+  <div class="savings-banner">
+    <div>
+      <div class="sv-main">Plan B saves <strong id="svAmt">—</strong> over 3 months vs Plan A</div>
+      <div class="sv-detail" id="svDetail">—</div>
+    </div>
+    <div class="chips" id="svChips"></div>
+  </div>
+
+  <div class="sc-cards">
+    <div class="sc-card">
+      <div class="sc-hdr a"><div class="sc-hdr-l"><div class="sc-dot a"></div><h3 class="a">Plan A — Stay All Month</h3></div><span style="font-size:11px;color:var(--muted)">92 nights</span></div>
+      <div class="sc-body">
+        <div class="sc-row"><span class="sc-row-lbl">🏠 Accommodation</span><span class="sc-row-val" id="cAAccom">—</span></div>
+        <div class="sc-row"><span class="sc-row-lbl">🍱 Meals</span><span class="sc-row-val" id="cAMeals">—</span></div>
+        <div class="sc-row"><span class="sc-row-lbl">🚆 Train travel</span><span class="sc-row-val" id="cATravel">—</span></div>
+        <div class="sc-row"><span class="sc-row-lbl">🏍️ Motorcycle</span><span class="sc-row-val" id="cAMoto">—</span></div>
+        <div class="sc-foot"><span>3-Month Total</span><strong class="a" id="cATotal">—</strong></div>
+        <div style="text-align:right;font-size:11px;color:var(--muted);margin-top:4px">Per person: <span id="cAPer" style="font-weight:700;color:var(--a)">—</span></div>
+      </div>
+    </div>
+    <div class="sc-card">
+      <div class="sc-hdr b"><div class="sc-hdr-l"><div class="sc-dot b"></div><h3 class="b">Plan B — Weekend Home</h3></div><span style="font-size:11px;color:var(--muted)">66 nights</span></div>
+      <div class="sc-body">
+        <div class="sc-row"><span class="sc-row-lbl">🏠 Accommodation</span><span class="sc-row-val" id="cBAccom">—</span></div>
+        <div class="sc-row"><span class="sc-row-lbl">🍱 Meals</span><span class="sc-row-val" id="cBMeals">—</span></div>
+        <div class="sc-row"><span class="sc-row-lbl">🚆 Train travel</span><span class="sc-row-val" id="cBTravel">—</span></div>
+        <div class="sc-row"><span class="sc-row-lbl">🏍️ Motorcycle</span><span class="sc-row-val" id="cBMoto">—</span></div>
+        <div class="sc-foot"><span>3-Month Total</span><strong class="b" id="cBTotal">—</strong></div>
+        <div style="text-align:right;font-size:11px;color:var(--muted);margin-top:4px">Per person: <span id="cBPer" style="font-weight:700;color:var(--b)">—</span></div>
       </div>
     </div>
   </div>
 
-  <!-- MONTHLY TABLE (tabbed) -->
-  <div class="sec">Monthly Breakdown</div>
-  <div class="table-card">
-    <div class="tab-toggle">
-      <button class="tab-btn active a" onclick="showTab('a')" id="tabA">Plan A — Stay All Month</button>
-      <button class="tab-btn b" onclick="showTab('b')" id="tabB">Plan B — Weekend Home</button>
-      <button class="tab-btn diff" onclick="showTab('diff')" id="tabDiff">Difference (A minus B)</button>
+  <div class="sec">Detailed Breakdown</div>
+  <div class="tbl-card">
+    <div class="inner-tabs">
+      <button class="itab ia" id="itA" onclick="showInner('A')">Plan A — Stay All Month</button>
+      <button class="itab" id="itB" onclick="showInner('B')">Plan B — Weekend Home</button>
+      <button class="itab" id="itD" onclick="showInner('D')">Difference (A minus B)</button>
     </div>
-    <div id="tableA"><table>
+    <div id="innerA"><table>
       <thead><tr><th>Month</th><th>Nights</th><th>Weekdays</th><th>Accommodation</th><th>Meals</th><th>Travel</th><th>Motorcycle</th><th>Monthly Total</th><th>Per Person</th></tr></thead>
-      <tbody id="tbodyA"></tbody>
-      <tfoot><tr><td>Total</td><td>92</td><td>66</td><td id="afAccom">—</td><td id="afMeals">—</td><td id="afTravel">—</td><td id="afMoto">—</td><td id="afTotal">—</td><td id="afPer">—</td></tr></tfoot>
+      <tbody id="ciTbA"></tbody>
+      <tfoot><tr><td>Total</td><td>92</td><td>66</td><td id="ciAfAc">—</td><td id="ciAfMe">—</td><td id="ciAfTr">—</td><td id="ciAfMo">—</td><td id="ciAfTo">—</td><td id="ciAfPe">—</td></tr></tfoot>
     </table></div>
-    <div id="tableB" style="display:none"><table>
+    <div id="innerB" style="display:none"><table>
       <thead><tr><th>Month</th><th>Nights</th><th>Weekdays</th><th>Accommodation</th><th>Meals</th><th>Travel</th><th>Motorcycle</th><th>Monthly Total</th><th>Per Person</th></tr></thead>
-      <tbody id="tbodyB"></tbody>
-      <tfoot><tr><td>Total</td><td>66</td><td>66</td><td id="bfAccom">—</td><td id="bfMeals">—</td><td id="bfTravel">—</td><td id="bfMoto">—</td><td id="bfTotal">—</td><td id="bfPer">—</td></tr></tfoot>
+      <tbody id="ciTbB"></tbody>
+      <tfoot><tr><td>Total</td><td>66</td><td>66</td><td id="ciBfAc">—</td><td id="ciBfMe">—</td><td id="ciBfTr">—</td><td id="ciBfMo">—</td><td id="ciBfTo">—</td><td id="ciBfPe">—</td></tr></tfoot>
     </table></div>
-    <div id="tableDiff" style="display:none"><table>
+    <div id="innerD" style="display:none"><table>
       <thead><tr><th>Month</th><th>Accommodation Δ</th><th>Meals Δ</th><th>Travel Δ</th><th>Motorcycle Δ</th><th>Net Saving (B cheaper by)</th></tr></thead>
-      <tbody id="tbodyDiff"></tbody>
-      <tfoot><tr><td style="text-align:left">3-Month Total Δ</td><td id="dfAccom">—</td><td id="dfMeals">—</td><td id="dfTravel">—</td><td id="dfMoto">—</td><td id="dfTotal">—</td></tr></tfoot>
+      <tbody id="ciTbD"></tbody>
+      <tfoot><tr><td style="text-align:left">3-Month Δ</td><td id="ciDfAc">—</td><td>NT$0</td><td id="ciDfTr">—</td><td id="ciDfMo">—</td><td id="ciDfTo">—</td></tr></tfoot>
     </table></div>
   </div>
 
-  <!-- CHARTS -->
-  <div class="sec">Cost Visualization</div>
-  <div class="charts-grid">
-    <div class="chart-card">
-      <h3>Plan A vs Plan B — Monthly Total Comparison</h3>
-      <canvas id="barChart" height="200"></canvas>
-    </div>
-    <div class="chart-card">
-      <h3>Where the savings come from</h3>
-      <canvas id="savingsChart" height="200"></canvas>
-    </div>
+  <div class="sec">Comparison Charts</div>
+  <div class="charts2">
+    <div class="chart-card"><h3>Monthly Total — Plan A vs Plan B</h3><canvas id="cBarC" height="200"></canvas></div>
+    <div class="chart-card"><h3>Where the savings come from</h3><canvas id="cSavC" height="200"></canvas></div>
   </div>
 
-  <!-- NOTES -->
-  <div class="notes-card">
-    <h4>📋 Assumptions & Notes</h4>
-    <div class="note-item">Plan B accommodation nights: <strong>Sunday night through Thursday night = 5 nights/week</strong>. All 3 months = 22 nights each (8–9 weekend nights removed per month).</div>
-    <div class="note-item">Plan B train travel: agents take the train <strong>every Friday (Hualien→Taipei) and every Sunday (Taipei→Hualien)</strong>. June: 4+4=8 one-way trips/person · July: 5+4=9 · August: 4+5=9 = 26 total one-way trips/person.</div>
-    <div class="note-item">Plan B motorcycle: budgeted for <strong>accommodation nights only (22/month)</strong> — assumes bikes returned Friday morning and re-rented Sunday. If shop doesn't allow partial, moto cost is same as Plan A.</div>
-    <div class="note-item">Meals are <strong>identical in both plans</strong> — NT$600/person/weekday × 66 workdays total. Weekend meals in Taipei are not budgeted (personal cost).</div>
-    <div class="note-item">Plan B agent wellbeing benefit: agents spend weekends at home with family — may reduce fatigue and improve performance on a long 3-month deployment.</div>
+  <div class="notes-card" style="border-left-color:var(--orange)">
+    <h4 style="color:var(--orange)">📋 Comparison Notes</h4>
+    <div class="ni">Accommodation savings = Plan A nights (92) minus Plan B nights (66) = <strong>26 fewer hotel nights × 2 pax × nightly rate</strong>.</div>
+    <div class="ni">Meal costs are <strong>identical in both plans</strong> — same 66 weekdays, same NT$600/pax rate. Weekends not budgeted in either plan.</div>
+    <div class="ni">Travel cost is much higher in Plan B — <strong>26 one-way trips vs 6 one-way trips per person</strong>. The extra train spend is the main cost of Plan B.</div>
+    <div class="ni">Motorcycle savings in Plan B = 22 days/month vs 30–31 days/month. If shop requires full-month rental, this saving disappears.</div>
+    <div class="ni">Plan B also provides a <strong>wellbeing benefit</strong> (weekly home time) which is not reflected in cost but matters for a 3-month deployment.</div>
   </div>
-
 </div>
 
 <div class="footer">
-  COE Team · Uber &nbsp;·&nbsp; Budget figures are estimates &nbsp;·&nbsp; Last updated: 18 May 2026 &nbsp;·&nbsp;
+  COE Team · Uber &nbsp;·&nbsp; Budget figures are estimates · Last updated: 18 May 2026 &nbsp;·&nbsp;
   Sources: 行易租車, 鋐運租車, 長城租車, KKday, Klook
 </div>
 
 <script>
-// ── FIXED DATA ──
 const MONTHS = [
-  { name:'June 2026',   allNights:30, wnNights:22, weekdays:22, bTrips:8,  pills:['g',''] },
-  { name:'July 2026',   allNights:31, wnNights:22, weekdays:23, bTrips:9,  pills:['o',''] },
-  { name:'August 2026', allNights:31, wnNights:22, weekdays:21, bTrips:9,  pills:['b',''] },
+  { name:'June 2026',   aN:30, bN:22, wd:22, bT:8  },
+  { name:'July 2026',   aN:31, bN:22, wd:23, bT:9  },
+  { name:'August 2026', aN:31, bN:22, wd:21, bT:9  },
 ];
-const PAX = 2, MEAL = 600;
-let bikes = 2, barChart, savChart;
+const PAX=2, MEAL=600;
+let bikes=2;
+let charts={aBar:null,aDough:null,bBar:null,bDough:null,cBar:null,cSav:null};
+let tabInited={A:false,B:false,C:false};
+let curPage='A';
 
-function fmt(n){ return 'NT$'+Math.round(n).toLocaleString(); }
-function diff(a,b){ const d=a-b; return (d>0?'<span class="positive">':'<span class="negative">')+fmt(Math.abs(d))+(d>0?' saved':'added')+'</span>'; }
+function fmt(n){return 'NT$'+Math.round(n).toLocaleString();}
+function K(n){return Math.round(n/1000)+'K';}
 
 function setBikes(n){
   bikes=n;
   document.getElementById('b1').classList.toggle('active',n===1);
   document.getElementById('b2').classList.toggle('active',n===2);
-  document.getElementById('bikeHint').textContent = n===1?'One shared bike — agents coordinate':'Each agent has their own bike — recommended';
   update();
 }
 
-function showTab(t){
-  ['a','b','diff'].forEach(x=>{
-    document.getElementById('table'+x.charAt(0).toUpperCase()+x.slice(1)).style.display = x===t?'block':'none';
-    const btn = document.getElementById('tab'+x.charAt(0).toUpperCase()+x.slice(1));
-    btn.classList.toggle('active', x===t);
+function showPage(p){
+  curPage=p;
+  ['A','B','C'].forEach(x=>{
+    document.getElementById('page'+x).classList.toggle('active',x===p);
+    const btn=document.getElementById('tn'+x);
+    btn.className='tnav-btn'+(x===p?' active-'+(x==='A'?'a':x==='B'?'b':'c'):'');
   });
+  update();
+  // resize charts for new visible tab
+  setTimeout(()=>{
+    if(p==='A'&&charts.aBar){charts.aBar.resize();charts.aDough.resize();}
+    if(p==='B'&&charts.bBar){charts.bBar.resize();charts.bDough.resize();}
+    if(p==='C'&&charts.cBar){charts.cBar.resize();charts.cSav.resize();}
+  },50);
 }
-// fix tab IDs
-function showTab(t){
-  document.getElementById('tableA').style.display    = t==='a'    ?'block':'none';
-  document.getElementById('tableB').style.display    = t==='b'    ?'block':'none';
-  document.getElementById('tableDiff').style.display = t==='diff' ?'block':'none';
-  document.getElementById('tabA').className    = 'tab-btn'+(t==='a'   ?' active a':'');
-  document.getElementById('tabB').className    = 'tab-btn'+(t==='b'   ?' active b':'');
-  document.getElementById('tabDiff').className = 'tab-btn'+(t==='diff'?' active diff':'');
+
+function showInner(t){
+  ['A','B','D'].forEach(x=>{
+    document.getElementById('inner'+(x==='D'?'D':x)).style.display=x===t?'block':'none';
+    const cls={'A':'ia','B':'ib','D':'id'}[x];
+    document.getElementById('it'+x).className='itab'+(x===t?' '+cls:'');
+  });
 }
 
 function update(){
-  const accom = parseInt(document.getElementById('accomSlider').value);
-  const train = parseInt(document.getElementById('trainSlider').value);
-  const moto  = parseInt(document.getElementById('motoSlider').value);
+  const accom=parseInt(document.getElementById('sAccom').value);
+  const train=parseInt(document.getElementById('sTrain').value);
+  const moto =parseInt(document.getElementById('sMoto').value);
 
-  document.getElementById('accomLbl').textContent = accom.toLocaleString();
-  document.getElementById('trainLbl').textContent = train.toLocaleString();
-  document.getElementById('motoLbl').textContent  = moto.toLocaleString();
+  // Slider labels
+  document.getElementById('sAccomLbl').textContent=accom.toLocaleString();
+  document.getElementById('sTrainLbl').textContent=train.toLocaleString();
+  document.getElementById('sMotoLbl').textContent =moto.toLocaleString();
 
   // Slider gradients
-  const ap=(accom-800)/(2200-800)*100; document.getElementById('accomSlider').style.background=`linear-gradient(to right,var(--blue) ${ap}%,#e2e5ef ${ap}%)`;
-  const tp=(train-350)/(600-350)*100;  document.getElementById('trainSlider').style.background=`linear-gradient(to right,var(--purple) ${tp}%,#e2e5ef ${tp}%)`;
-  const mp=(moto-200)/(500-200)*100;   document.getElementById('motoSlider').style.background=`linear-gradient(to right,var(--teal) ${mp}%,#e2e5ef ${mp}%)`;
+  const g=(v,mn,mx,c)=>`linear-gradient(to right,${c} ${(v-mn)/(mx-mn)*100}%,#e2e5ef ${(v-mn)/(mx-mn)*100}%)`;
+  document.getElementById('sAccom').style.background=g(accom,800,2200,'var(--blue)');
+  document.getElementById('sTrain').style.background=g(train,350,600,'var(--purple)');
+  document.getElementById('sMoto').style.background =g(moto,200,500,'var(--teal)');
 
-  let aTotAccom=0,aTotMeals=0,aTotTravel=0,aTotMoto=0,aGrand=0;
-  let bTotAccom=0,bTotMeals=0,bTotTravel=0,bTotMoto=0,bGrand=0;
-  const aMonths=[], bMonths=[];
-  const aBar=[], bBar=[];
-  const pillCls = ['g','o','b'];
-
-  let tbA='', tbB='', tbD='';
+  // ── Compute ──
+  let aTAc=0,aTMe=0,aTTr=0,aTMo=0,aG=0;
+  let bTAc=0,bTMe=0,bTTr=0,bTMo=0,bG=0;
+  const aBar=[],bBar=[],aStacks={ac:[],me:[],tr:[],mo:[]},bStacks={ac:[],me:[],tr:[],mo:[]};
+  let tbA='',tbB='',tbD='',ciTbA='',ciTbB='',ciTbD='';
+  const pc=['pg','po','pb'];
 
   MONTHS.forEach((m,i)=>{
-    // Plan A
-    const aAccom  = m.allNights * PAX  * accom;
-    const aMeals  = m.weekdays  * PAX  * MEAL;
-    const aTravel = PAX         * train * 2;           // 1 round trip per person
-    const aMoto   = m.allNights * bikes * moto;
-    const aTotal  = aAccom+aMeals+aTravel+aMoto;
+    const aAc=m.aN*PAX*accom, aMe=m.wd*PAX*MEAL, aTr=PAX*train*2,   aMo=m.aN*bikes*moto;
+    const bAc=m.bN*PAX*accom, bMe=m.wd*PAX*MEAL, bTr=PAX*m.bT*train, bMo=m.bN*bikes*moto;
+    const aT=aAc+aMe+aTr+aMo, bT=bAc+bMe+bTr+bMo;
 
-    // Plan B
-    const bAccom  = m.wnNights  * PAX  * accom;
-    const bMeals  = m.weekdays  * PAX  * MEAL;         // same
-    const bTravel = PAX         * m.bTrips * train;    // one-way trips
-    const bMoto   = m.wnNights  * bikes * moto;        // weekday nights only
-    const bTotal  = bAccom+bMeals+bTravel+bMoto;
+    aTAc+=aAc;aTMe+=aMe;aTTr+=aTr;aTMo+=aMo;aG+=aT;
+    bTAc+=bAc;bTMe+=bMe;bTTr+=bTr;bTMo+=bMo;bG+=bT;
+    aBar.push(aT);bBar.push(bT);
+    ['ac','me','tr','mo'].forEach(k=>{aStacks[k].push({ac:aAc,me:aMe,tr:aTr,mo:aMo}[k]);bStacks[k].push({ac:bAc,me:bMe,tr:bTr,mo:bMo}[k]);});
 
-    aTotAccom+=aAccom; aTotMeals+=aMeals; aTotTravel+=aTravel; aTotMoto+=aMoto; aGrand+=aTotal;
-    bTotAccom+=bAccom; bTotMeals+=bMeals; bTotTravel+=bTravel; bTotMoto+=bMoto; bGrand+=bTotal;
-    aBar.push(aTotal); bBar.push(bTotal);
-    aMonths.push({accom:aAccom,meals:aMeals,travel:aTravel,moto:aMoto,total:aTotal});
-    bMonths.push({accom:bAccom,meals:bMeals,travel:bTravel,moto:bMoto,total:bTotal});
+    const row=(nights,nights2,trips,ac,me,tr,mo,tot,isTr)=>`
+      <tr><td>${m.name}<span class="pill ${pc[i]}">${m.wd}d</span></td>
+      <td>${nights}</td><td>${m.wd}</td><td>${fmt(ac)}</td><td>${fmt(me)}</td>
+      <td>${fmt(tr)}${isTr?`<br><span style="font-size:10px;color:var(--muted)">${trips} one-way/pax</span>`:''}</td>
+      <td style="color:var(--teal)">${fmt(mo)}</td>
+      <td style="font-weight:700">${fmt(tot)}</td>
+      <td style="color:var(--${isTr?'b':'a'})">${fmt(tot/PAX)}</td></tr>`;
 
-    const pc = pillCls[i];
-    tbA += `<tr><td>${m.name}<span class="pill ${pc}">${m.weekdays}d</span></td><td>${m.allNights}</td><td>${m.weekdays}</td><td>${fmt(aAccom)}</td><td>${fmt(aMeals)}</td><td>${fmt(aTravel)}</td><td>${fmt(aMoto)}</td><td style="font-weight:700">${fmt(aTotal)}</td><td style="color:var(--a-color)">${fmt(aTotal/PAX)}</td></tr>`;
-    tbB += `<tr><td>${m.name}<span class="pill ${pc}">${m.weekdays}d</span></td><td>${m.wnNights}</td><td>${m.weekdays}</td><td>${fmt(bAccom)}</td><td>${fmt(bMeals)}</td><td>${fmt(bTravel)}<br><span style="font-size:10px;color:var(--muted)">${m.bTrips} one-way/pax</span></td><td>${fmt(bMoto)}</td><td style="font-weight:700">${fmt(bTotal)}</td><td style="color:var(--b-color)">${fmt(bTotal/PAX)}</td></tr>`;
-    const diffAmt = aTotal-bTotal;
-    tbD += `<tr><td style="font-weight:700;text-align:left">${m.name}</td><td class="positive">${fmt(aAccom-bAccom)} saved</td><td>NT$0</td><td class="negative">${fmt(bTravel-aTravel)} extra</td><td class="positive">${fmt(aMoto-bMoto)} saved</td><td class="positive" style="font-weight:800">${fmt(diffAmt)} saved</td></tr>`;
+    tbA+=row(m.aN,null,'',aAc,aMe,aTr,aMo,aT,false);
+    tbB+=row(m.bN,null,m.bT,bAc,bMe,bTr,bMo,bT,true);
+    ciTbA+=row(m.aN,null,'',aAc,aMe,aTr,aMo,aT,false);
+    ciTbB+=row(m.bN,null,m.bT,bAc,bMe,bTr,bMo,bT,true);
+
+    const net=aT-bT;
+    const diffRow=`<tr><td style="font-weight:700;text-align:left">${m.name}</td>
+      <td class="positive">${fmt(aAc-bAc)} saved</td>
+      <td>NT$0</td>
+      <td class="negative">${fmt(bTr-aTr)} extra</td>
+      <td class="positive">${fmt(aMo-bMo)} saved</td>
+      <td class="positive" style="font-weight:800">${fmt(net)} saved</td></tr>`;
+    tbD+=diffRow;ciTbD+=diffRow;
   });
 
-  document.getElementById('tbodyA').innerHTML = tbA;
-  document.getElementById('tbodyB').innerHTML = tbB;
-  document.getElementById('tbodyDiff').innerHTML = tbD;
+  // ── DOM updates ──
+  // Plan A page
+  document.getElementById('tbA').innerHTML=tbA;
+  document.getElementById('aTotal').innerHTML=K(aG)+'<span>NTD</span>';
+  document.getElementById('aAccom').innerHTML=K(aTAc)+'<span>NTD</span>';
+  document.getElementById('aMeals').innerHTML=K(aTMe)+'<span>NTD</span>';
+  document.getElementById('aTravel').innerHTML=fmt(aTTr).replace('NT$','')+'<span>NTD</span>';
+  document.getElementById('aMoto').innerHTML=K(aTMo)+'<span>NTD</span>';
+  document.getElementById('aAccomSub').textContent='@ '+accom.toLocaleString()+'/pax/night';
+  document.getElementById('aMotoSub').textContent=bikes+' bike'+(bikes>1?'s':'')+' · 92 days';
+  document.getElementById('aRT').textContent='NT$'+(train*2).toLocaleString();
+  ['Ac','Me','Tr','Mo','To','Pe'].forEach(k=>{
+    const el=document.getElementById('af'+k);
+    if(el) el.textContent=fmt({Ac:aTAc,Me:aTMe,Tr:aTTr,Mo:aTMo,To:aG,Pe:aG/PAX}[k]);
+  });
 
-  // Plan A footer
-  document.getElementById('afAccom').textContent  = fmt(aTotAccom);
-  document.getElementById('afMeals').textContent  = fmt(aTotMeals);
-  document.getElementById('afTravel').textContent = fmt(aTotTravel);
-  document.getElementById('afMoto').textContent   = fmt(aTotMoto);
-  document.getElementById('afTotal').textContent  = fmt(aGrand);
-  document.getElementById('afPer').textContent    = fmt(aGrand/PAX);
+  // Plan B page
+  document.getElementById('tbB').innerHTML=tbB;
+  document.getElementById('bTotal').innerHTML=K(bG)+'<span>NTD</span>';
+  document.getElementById('bAccom').innerHTML=K(bTAc)+'<span>NTD</span>';
+  document.getElementById('bMeals').innerHTML=K(bTMe)+'<span>NTD</span>';
+  document.getElementById('bTravel').innerHTML=K(bTTr)+'<span>NTD</span>';
+  document.getElementById('bMoto').innerHTML=K(bTMo)+'<span>NTD</span>';
+  document.getElementById('bAccomSub').textContent='@ '+accom.toLocaleString()+'/pax · Sun–Thu';
+  document.getElementById('bMotoSub').textContent=bikes+' bike'+(bikes>1?'s':'')+' · 22d/mo';
+  document.getElementById('bTrJun').textContent=fmt(PAX*8*train);
+  document.getElementById('bTrJul').textContent=fmt(PAX*9*train);
+  document.getElementById('bTrAug').textContent=fmt(PAX*9*train);
+  ['Ac','Me','Tr','Mo','To','Pe'].forEach(k=>{
+    const el=document.getElementById('bf'+k);
+    if(el) el.textContent=fmt({Ac:bTAc,Me:bTMe,Tr:bTTr,Mo:bTMo,To:bG,Pe:bG/PAX}[k]);
+  });
 
-  // Plan B footer
-  document.getElementById('bfAccom').textContent  = fmt(bTotAccom);
-  document.getElementById('bfMeals').textContent  = fmt(bTotMeals);
-  document.getElementById('bfTravel').textContent = fmt(bTotTravel);
-  document.getElementById('bfMoto').textContent   = fmt(bTotMoto);
-  document.getElementById('bfTotal').textContent  = fmt(bGrand);
-  document.getElementById('bfPer').textContent    = fmt(bGrand/PAX);
+  // Comparison page
+  document.getElementById('ciTbA').innerHTML=ciTbA;
+  document.getElementById('ciTbB').innerHTML=ciTbB;
+  document.getElementById('ciTbD').innerHTML=ciTbD;
+  ['ciAf','ciBf'].forEach((pre,pi)=>{
+    const vals=pi===0?{Ac:aTAc,Me:aTMe,Tr:aTTr,Mo:aTMo,To:aG,Pe:aG/PAX}:{Ac:bTAc,Me:bTMe,Tr:bTTr,Mo:bTMo,To:bG,Pe:bG/PAX};
+    ['Ac','Me','Tr','Mo','To','Pe'].forEach(k=>{const el=document.getElementById(pre+k);if(el)el.textContent=fmt(vals[k]);});
+  });
+  const net=aG-bG, acSv=aTAc-bTAc, moSv=aTMo-bTMo, trEx=bTTr-aTTr;
+  document.getElementById('ciDfAc').innerHTML=`<span class="positive">${fmt(acSv)} saved</span>`;
+  document.getElementById('ciDfTr').innerHTML=`<span class="negative">${fmt(trEx)} extra</span>`;
+  document.getElementById('ciDfMo').innerHTML=`<span class="positive">${fmt(moSv)} saved</span>`;
+  document.getElementById('ciDfTo').innerHTML=`<span class="positive" style="font-size:15px;font-weight:800">${fmt(net)} saved</span>`;
 
-  // Diff footer
-  document.getElementById('dfAccom').innerHTML  = `<span class="positive">${fmt(aTotAccom-bTotAccom)} saved</span>`;
-  document.getElementById('dfMeals').textContent = 'NT$0';
-  document.getElementById('dfTravel').innerHTML  = `<span class="negative">${fmt(bTotTravel-aTotTravel)} extra</span>`;
-  document.getElementById('dfMoto').innerHTML    = `<span class="positive">${fmt(aTotMoto-bTotMoto)} saved</span>`;
-  const netSaving = aGrand-bGrand;
-  document.getElementById('dfTotal').innerHTML   = `<span class="positive" style="font-size:15px;font-weight:800">${fmt(netSaving)} saved</span>`;
+  const cIds={cAAccom:aTAc,cAMeals:aTMe,cATravel:aTTr,cAMoto:aTMo,cATotal:aG,cAPer:aG/PAX,
+              cBAccom:bTAc,cBMeals:bTMe,cBTravel:bTTr,cBMoto:bTMo,cBTotal:bG,cBPer:bG/PAX};
+  Object.entries(cIds).forEach(([id,v])=>{const el=document.getElementById(id);if(el)el.textContent=fmt(v);});
 
-  // Summary cards
-  document.getElementById('aAccom').textContent  = fmt(aTotAccom);
-  document.getElementById('aMeals').textContent  = fmt(aTotMeals);
-  document.getElementById('aTravel').textContent = fmt(aTotTravel);
-  document.getElementById('aMoto').textContent   = fmt(aTotMoto);
-  document.getElementById('aTotal').textContent  = fmt(aGrand);
-  document.getElementById('aPerPerson').textContent = fmt(aGrand/PAX);
+  document.getElementById('svAmt').textContent=fmt(net);
+  document.getElementById('svDetail').textContent=`Plan A: ${fmt(aG)} → Plan B: ${fmt(bG)} (${Math.round(net/aG*100)}% cheaper)`;
+  document.getElementById('svChips').innerHTML=`
+    <span class="chip chip-g">🏠 Accom saves ${fmt(acSv)}</span>
+    <span class="chip chip-g">🏍️ Moto saves ${fmt(moSv)}</span>
+    <span class="chip chip-r">🚆 Train +${fmt(trEx)}</span>`;
 
-  document.getElementById('bAccom').textContent  = fmt(bTotAccom);
-  document.getElementById('bMeals').textContent  = fmt(bTotMeals);
-  document.getElementById('bTravel').textContent = fmt(bTotTravel);
-  document.getElementById('bMoto').textContent   = fmt(bTotMoto);
-  document.getElementById('bTotal').textContent  = fmt(bGrand);
-  document.getElementById('bPerPerson').textContent = fmt(bGrand/PAX);
+  // ── Charts ──
+  const C={bl:'rgba(26,95,212,.8)',or:'rgba(212,84,26,.8)',gr:'rgba(5,150,82,.8)',te:'rgba(15,148,136,.8)',a:'rgba(26,95,212,.8)',b:'rgba(5,150,82,.8)',red:'rgba(220,38,38,.8)'};
+  const lbl=['June','July','August'];
 
-  // Train detail card
-  document.getElementById('aTravelJun').textContent = fmt(PAX*train*2);
-  document.getElementById('aTravelJul').textContent = fmt(PAX*train*2);
-  document.getElementById('aTravelAug').textContent = fmt(PAX*train*2);
-  document.getElementById('aTravelTotal').textContent = fmt(aTotTravel);
-  document.getElementById('bTravelJun').textContent = fmt(PAX*8*train);
-  document.getElementById('bTravelJul').textContent = fmt(PAX*9*train);
-  document.getElementById('bTravelAug').textContent = fmt(PAX*9*train);
-  document.getElementById('bTravelTotal').textContent = fmt(bTotTravel);
-
-  // Savings banner
-  const accomSave = aTotAccom-bTotAccom;
-  const motoSave  = aTotMoto-bTotMoto;
-  const travelExtra = bTotTravel-aTotTravel;
-  document.getElementById('savingsAmt').textContent = fmt(netSaving);
-  document.getElementById('savingsDetail').textContent = `Plan A total: ${fmt(aGrand)}  →  Plan B total: ${fmt(bGrand)}  (${Math.round(netSaving/aGrand*100)}% cheaper)`;
-  document.getElementById('savingsChips').innerHTML = `
-    <span class="chip pos">🏠 Accom saves ${fmt(accomSave)}</span>
-    <span class="chip pos">🏍️ Moto saves ${fmt(motoSave)}</span>
-    <span class="chip neg">🚆 Train +${fmt(travelExtra)}</span>
-  `;
-
-  updateCharts(aBar, bBar, accomSave, travelExtra, motoSave);
-}
-
-function updateCharts(aBar, bBar, accomSave, travelExtra, motoSave){
-  const labels = ['June','July','August'];
-  const aC = 'rgba(26,95,212,0.8)', bC = 'rgba(5,150,82,0.8)';
-
-  if(barChart){
-    barChart.data.datasets[0].data=aBar;
-    barChart.data.datasets[1].data=bBar;
-    barChart.update();
-  } else {
-    barChart = new Chart(document.getElementById('barChart'),{
-      type:'bar',
-      data:{ labels, datasets:[
-        { label:'Plan A (Stay all month)', data:aBar, backgroundColor:aC, borderRadius:5 },
-        { label:'Plan B (Weekend home)',   data:bBar, backgroundColor:bC, borderRadius:5 },
-      ]},
-      options:{
-        responsive:true,
-        plugins:{ legend:{ labels:{ color:'#374151', font:{size:12} } } },
-        scales:{
-          x:{ grid:{color:'#f0f1f5'}, ticks:{color:'#6b7280'} },
-          y:{ grid:{color:'#f0f1f5'}, ticks:{color:'#6b7280', callback:v=>'NT$'+v.toLocaleString()} }
-        }
-      }
-    });
+  function stackedBar(canvasId,key,stacks,color){
+    const existing=charts[key];
+    const datasets=[
+      {label:'Accommodation',data:stacks.ac,backgroundColor:C.bl,borderRadius:3},
+      {label:'Meals',data:stacks.me,backgroundColor:C.or,borderRadius:3},
+      {label:'Travel',data:stacks.tr,backgroundColor:C.gr,borderRadius:3},
+      {label:'Motorcycle',data:stacks.mo,backgroundColor:C.te,borderRadius:3},
+    ];
+    if(existing){datasets.forEach((d,i)=>{existing.data.datasets[i].data=d.data;});existing.update();return;}
+    charts[key]=new Chart(document.getElementById(canvasId),{type:'bar',data:{labels:lbl,datasets},options:{responsive:true,plugins:{legend:{labels:{color:'#374151',font:{size:11}}}},scales:{x:{stacked:true,grid:{color:'#f0f1f5'},ticks:{color:'#6b7280'}},y:{stacked:true,grid:{color:'#f0f1f5'},ticks:{color:'#6b7280',callback:v=>'NT$'+v.toLocaleString()}}}}});
+  }
+  function doughnut(canvasId,key,data){
+    const existing=charts[key];
+    if(existing){existing.data.datasets[0].data=data;existing.update();return;}
+    charts[key]=new Chart(document.getElementById(canvasId),{type:'doughnut',data:{labels:['Accommodation','Meals','Travel','Motorcycle'],datasets:[{data,backgroundColor:[C.bl,C.or,C.gr,C.te],borderColor:'#fff',borderWidth:3}]},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{color:'#374151',font:{size:11},padding:10}},tooltip:{callbacks:{label:ctx=>' NT$'+ctx.raw.toLocaleString()}}}}});
   }
 
-  const netSave = accomSave + motoSave - travelExtra;
-  const sData  = [accomSave, motoSave, -travelExtra];
-  const sColors = ['rgba(5,150,82,0.8)','rgba(15,148,136,0.8)','rgba(220,38,38,0.8)'];
-
-  if(savChart){
-    savChart.data.datasets[0].data   = sData;
-    savChart.data.datasets[0].backgroundColor = sColors;
-    savChart.update();
-  } else {
-    savChart = new Chart(document.getElementById('savingsChart'),{
-      type:'bar',
-      data:{
-        labels:['Accommodation\nsavings','Motorcycle\nsavings','Train\nextra cost'],
-        datasets:[{ data:sData, backgroundColor:sColors, borderRadius:5 }]
-      },
-      options:{
-        indexAxis:'y',
-        responsive:true,
-        plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:ctx=>' NT$'+Math.abs(ctx.raw).toLocaleString()+(ctx.raw>0?' saved':' extra') } } },
-        scales:{
-          x:{ grid:{color:'#f0f1f5'}, ticks:{color:'#6b7280', callback:v=>'NT$'+Math.abs(v).toLocaleString()} },
-          y:{ grid:{display:false}, ticks:{color:'#374151',font:{size:11}} }
-        }
-      }
-    });
+  if(curPage==='A'||tabInited.A){
+    stackedBar('aBarC','aBar',aStacks);
+    doughnut('aDoughC','aDough',[aTAc,aTMe,aTTr,aTMo]);
+    tabInited.A=true;
+  }
+  if(curPage==='B'||tabInited.B){
+    stackedBar('bBarC','bBar',bStacks);
+    doughnut('bDoughC','bDough',[bTAc,bTMe,bTTr,bTMo]);
+    tabInited.B=true;
+  }
+  if(curPage==='C'||tabInited.C){
+    // Grouped bar — Plan A vs B
+    if(charts.cBar){charts.cBar.data.datasets[0].data=aBar;charts.cBar.data.datasets[1].data=bBar;charts.cBar.update();}
+    else{charts.cBar=new Chart(document.getElementById('cBarC'),{type:'bar',data:{labels:lbl,datasets:[{label:'Plan A',data:aBar,backgroundColor:C.a,borderRadius:4},{label:'Plan B',data:bBar,backgroundColor:C.b,borderRadius:4}]},options:{responsive:true,plugins:{legend:{labels:{color:'#374151',font:{size:12}}}},scales:{x:{grid:{color:'#f0f1f5'},ticks:{color:'#6b7280'}},y:{grid:{color:'#f0f1f5'},ticks:{color:'#6b7280',callback:v=>'NT$'+v.toLocaleString()}}}}});}
+    // Horizontal savings bar
+    const sData=[acSv,moSv,-trEx];
+    const sCols=[C.gr,C.te,C.red];
+    if(charts.cSav){charts.cSav.data.datasets[0].data=sData;charts.cSav.data.datasets[0].backgroundColor=sCols;charts.cSav.update();}
+    else{charts.cSav=new Chart(document.getElementById('cSavC'),{type:'bar',data:{labels:['Accommodation savings','Motorcycle savings','Train extra cost'],datasets:[{data:sData,backgroundColor:sCols,borderRadius:4}]},options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' NT$'+Math.abs(ctx.raw).toLocaleString()+(ctx.raw>0?' saved':' extra')}}},scales:{x:{grid:{color:'#f0f1f5'},ticks:{color:'#6b7280',callback:v=>'NT$'+Math.abs(v).toLocaleString()}},y:{grid:{display:false},ticks:{color:'#374151',font:{size:11}}}}}});}
+    tabInited.C=true;
   }
 }
 
