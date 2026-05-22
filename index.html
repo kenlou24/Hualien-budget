@@ -41,6 +41,17 @@
     .tbtn{padding:5px 14px;border-radius:20px;border:1px solid var(--border);background:#f9fafb;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;}
     .tbtn.active{background:rgba(15,148,136,.1);color:var(--teal);border-color:rgba(15,148,136,.35);}
 
+    /* ── DATE CONTROLS ── */
+    .date-ctrl-row{max-width:1380px;margin:12px auto 0;display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+    .date-month-ctrl{background:#f9fafb;border:1px solid var(--border);border-radius:8px;padding:10px 14px;}
+    .date-month-name{font-size:11px;font-weight:700;color:#374151;letter-spacing:.5px;margin-bottom:7px;text-transform:uppercase;}
+    .date-inputs{display:flex;align-items:center;gap:6px;}
+    input[type=date]{font-size:12px;padding:5px 8px;border:1px solid var(--border);border-radius:5px;color:#1a1d2e;background:#fff;cursor:pointer;outline:none;}
+    input[type=date]:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(26,95,212,.15);}
+    .date-sep{color:var(--muted);font-size:14px;flex-shrink:0;padding:0 2px;}
+    .date-nights-badge{margin-top:7px;font-size:11px;color:var(--muted);}
+    .date-nights-badge strong{color:var(--blue);font-weight:700;}
+
     /* ── TAB NAV ── */
     .tab-nav{background:var(--card);border-bottom:2px solid var(--border);padding:0 36px;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.06);}
     .tab-nav-inner{max-width:1380px;margin:0 auto;display:flex;gap:0;}
@@ -261,6 +272,35 @@
       </div>
     </div>
   </div>
+  <div class="date-ctrl-row">
+    <div class="date-month-ctrl">
+      <div class="date-month-name">📅 June 2026 — Accommodation Dates</div>
+      <div class="date-inputs">
+        <input type="date" id="d_jun_s" value="2026-06-01" min="2026-01-01" max="2027-12-31" onchange="update()">
+        <span class="date-sep">→</span>
+        <input type="date" id="d_jun_e" value="2026-06-30" min="2026-01-01" max="2027-12-31" onchange="update()">
+      </div>
+      <div class="date-nights-badge">First night → Last night &nbsp;·&nbsp; <strong><span id="nights_jun">30</span> nights</strong></div>
+    </div>
+    <div class="date-month-ctrl">
+      <div class="date-month-name">📅 July 2026 — Accommodation Dates</div>
+      <div class="date-inputs">
+        <input type="date" id="d_jul_s" value="2026-07-01" min="2026-01-01" max="2027-12-31" onchange="update()">
+        <span class="date-sep">→</span>
+        <input type="date" id="d_jul_e" value="2026-07-31" min="2026-01-01" max="2027-12-31" onchange="update()">
+      </div>
+      <div class="date-nights-badge">First night → Last night &nbsp;·&nbsp; <strong><span id="nights_jul">31</span> nights</strong></div>
+    </div>
+    <div class="date-month-ctrl">
+      <div class="date-month-name">📅 August 2026 — Accommodation Dates</div>
+      <div class="date-inputs">
+        <input type="date" id="d_aug_s" value="2026-08-01" min="2026-01-01" max="2027-12-31" onchange="update()">
+        <span class="date-sep">→</span>
+        <input type="date" id="d_aug_e" value="2026-08-31" min="2026-01-01" max="2027-12-31" onchange="update()">
+      </div>
+      <div class="date-nights-badge">First night → Last night &nbsp;·&nbsp; <strong><span id="nights_aug">31</span> nights</strong></div>
+    </div>
+  </div>
 </div>
 
 <!-- ═══ TAB NAV ═══ -->
@@ -277,11 +317,11 @@
 ══════════════════════════════════════════ -->
 <div class="page active" id="pageA">
 
-  <div class="sec">Budget Summary — Plan A (Stay All Month, 92 nights)</div>
+  <div class="sec" id="aSecHdr">Budget Summary — Plan A (Stay All Month, 92 nights)</div>
   <div class="cards5">
-    <div class="card ct-green"><div class="card-lbl">Total Budget</div><div class="card-val" id="aTotal">—<span>NTD</span></div><div class="card-sub">92 nights · 3 months</div></div>
+    <div class="card ct-green"><div class="card-lbl">Total Budget</div><div class="card-val" id="aTotal">—<span>NTD</span></div><div class="card-sub" id="aSubNights">92 nights · 3 months</div></div>
     <div class="card ct-blue"><div class="card-lbl">Accommodation</div><div class="card-val" id="aAccom">—<span>NTD</span></div><div class="card-sub" id="aAccomSub">@ 2,200/pax/night</div></div>
-    <div class="card ct-orange"><div class="card-lbl">Meals (Weekdays)</div><div class="card-val" id="aMeals">—<span>NTD</span></div><div class="card-sub">66 weekdays · 2 pax</div></div>
+    <div class="card ct-orange"><div class="card-lbl">Meals (Weekdays)</div><div class="card-val" id="aMeals">—<span>NTD</span></div><div class="card-sub" id="aSubWd">66 weekdays · 2 pax</div></div>
     <div class="card ct-purple"><div class="card-lbl">Travel (Train)</div><div class="card-val" id="aTravel">—<span>NTD</span></div><div class="card-sub">3 round trips · 2 pax</div></div>
     <div class="card ct-teal"><div class="card-lbl">Motorcycle</div><div class="card-val" id="aMoto">—<span>NTD</span></div><div class="card-sub" id="aMotoSub">2 bikes · 92 days</div></div>
   </div>
@@ -290,7 +330,7 @@
   <div class="tbl-card"><table>
     <thead><tr><th>Month</th><th>Nights</th><th>Weekdays</th><th>Accommodation</th><th>Meals</th><th>Travel (1 RT)</th><th>🏍️ Moto</th><th>Monthly Total</th><th>Per Person</th></tr></thead>
     <tbody id="tbA"></tbody>
-    <tfoot><tr><td>Total</td><td>92</td><td>66</td><td id="afAc">—</td><td id="afMe">—</td><td id="afTr">—</td><td id="afMo">—</td><td id="afTo">—</td><td id="afPe">—</td></tr></tfoot>
+    <tfoot><tr><td>Total</td><td id="afNights">92</td><td id="afWd">66</td><td id="afAc">—</td><td id="afMe">—</td><td id="afTr">—</td><td id="afMo">—</td><td id="afTo">—</td><td id="afPe">—</td></tr></tfoot>
   </table></div>
 
   <div class="sec">Cost Visualization — Plan A</div>
@@ -372,12 +412,12 @@
 ══════════════════════════════════════════ -->
 <div class="page" id="pageB">
 
-  <div class="sec">Budget Summary — Plan B (Weekend Home, 66 nights)</div>
+  <div class="sec" id="bSecHdr">Budget Summary — Plan B (Weekend Home, 66 nights)</div>
   <div class="cards5">
-    <div class="card ct-green"><div class="card-lbl">Total Budget</div><div class="card-val" id="bTotal">—<span>NTD</span></div><div class="card-sub">66 nights · 3 months</div></div>
+    <div class="card ct-green"><div class="card-lbl">Total Budget</div><div class="card-val" id="bTotal">—<span>NTD</span></div><div class="card-sub" id="bSubNights">66 nights · 3 months</div></div>
     <div class="card ct-blue"><div class="card-lbl">Accommodation</div><div class="card-val" id="bAccom">—<span>NTD</span></div><div class="card-sub" id="bAccomSub">Sun night–Thu night only</div></div>
     <div class="card ct-orange"><div class="card-lbl">Meals (Weekdays)</div><div class="card-val" id="bMeals">—<span>NTD</span></div><div class="card-sub">66 weekdays · 2 pax</div></div>
-    <div class="card ct-purple"><div class="card-lbl">Travel (Train)</div><div class="card-val" id="bTravel">—<span>NTD</span></div><div class="card-sub">26 one-way trips/pax</div></div>
+    <div class="card ct-purple"><div class="card-lbl">Travel (Train)</div><div class="card-val" id="bTravel">—<span>NTD</span></div><div class="card-sub" id="bSubTrips">26 one-way trips/pax</div></div>
     <div class="card ct-teal"><div class="card-lbl">Motorcycle</div><div class="card-val" id="bMoto">—<span>NTD</span></div><div class="card-sub" id="bMotoSub">Weekday nights only</div></div>
   </div>
 
@@ -405,7 +445,7 @@
   <div class="tbl-card"><table>
     <thead><tr><th>Month</th><th>Hualien Nights</th><th>Weekdays</th><th>Accommodation</th><th>Meals</th><th>Travel (one-way trips)</th><th>🏍️ Moto</th><th>Monthly Total</th><th>Per Person</th></tr></thead>
     <tbody id="tbB"></tbody>
-    <tfoot><tr><td>Total</td><td>66</td><td>66</td><td id="bfAc">—</td><td id="bfMe">—</td><td id="bfTr">—</td><td id="bfMo">—</td><td id="bfTo">—</td><td id="bfPe">—</td></tr></tfoot>
+    <tfoot><tr><td>Total</td><td id="bfNights">66</td><td id="bfWd">66</td><td id="bfAc">—</td><td id="bfMe">—</td><td id="bfTr">—</td><td id="bfMo">—</td><td id="bfTo">—</td><td id="bfPe">—</td></tr></tfoot>
   </table></div>
 
   <div class="sec">Cost Visualization — Plan B</div>
@@ -443,18 +483,18 @@
     </div>
     <div class="b-train-grid">
       <div class="b-train-item">
-        <div class="b-train-month">June 2026</div>
-        <div class="b-train-detail">4 Fridays out + 4 Sundays back<br>= 8 one-way trips/person</div>
+        <div class="b-train-month" id="bTrMonth0">June 2026</div>
+        <div class="b-train-detail" id="bTrDetail0">4 Fridays out + 4 Sundays back<br>= 8 one-way trips/person</div>
         <div class="b-train-cost" id="bTrJun">—</div>
       </div>
       <div class="b-train-item">
-        <div class="b-train-month">July 2026</div>
-        <div class="b-train-detail">5 Fridays out + 4 Sundays back<br>= 9 one-way trips/person</div>
+        <div class="b-train-month" id="bTrMonth1">July 2026</div>
+        <div class="b-train-detail" id="bTrDetail1">5 Fridays out + 4 Sundays back<br>= 9 one-way trips/person</div>
         <div class="b-train-cost" id="bTrJul">—</div>
       </div>
       <div class="b-train-item">
-        <div class="b-train-month">August 2026</div>
-        <div class="b-train-detail">4 Fridays out + 5 Sundays back<br>= 9 one-way trips/person</div>
+        <div class="b-train-month" id="bTrMonth2">August 2026</div>
+        <div class="b-train-detail" id="bTrDetail2">4 Fridays out + 5 Sundays back<br>= 9 one-way trips/person</div>
         <div class="b-train-cost" id="bTrAug">—</div>
       </div>
     </div>
@@ -500,7 +540,7 @@
 
   <div class="sc-cards">
     <div class="sc-card">
-      <div class="sc-hdr a"><div class="sc-hdr-l"><div class="sc-dot a"></div><h3 class="a">Plan A — Stay All Month</h3></div><span style="font-size:11px;color:var(--muted)">92 nights</span></div>
+      <div class="sc-hdr a"><div class="sc-hdr-l"><div class="sc-dot a"></div><h3 class="a">Plan A — Stay All Month</h3></div><span style="font-size:11px;color:var(--muted)" id="cANights">92 nights</span></div>
       <div class="sc-body">
         <div class="sc-row"><span class="sc-row-lbl">🏠 Accommodation</span><span class="sc-row-val" id="cAAccom">—</span></div>
         <div class="sc-row"><span class="sc-row-lbl">🍱 Meals</span><span class="sc-row-val" id="cAMeals">—</span></div>
@@ -511,7 +551,7 @@
       </div>
     </div>
     <div class="sc-card">
-      <div class="sc-hdr b"><div class="sc-hdr-l"><div class="sc-dot b"></div><h3 class="b">Plan B — Weekend Home</h3></div><span style="font-size:11px;color:var(--muted)">66 nights</span></div>
+      <div class="sc-hdr b"><div class="sc-hdr-l"><div class="sc-dot b"></div><h3 class="b">Plan B — Weekend Home</h3></div><span style="font-size:11px;color:var(--muted)" id="cBNights">66 nights</span></div>
       <div class="sc-body">
         <div class="sc-row"><span class="sc-row-lbl">🏠 Accommodation</span><span class="sc-row-val" id="cBAccom">—</span></div>
         <div class="sc-row"><span class="sc-row-lbl">🍱 Meals</span><span class="sc-row-val" id="cBMeals">—</span></div>
@@ -533,12 +573,12 @@
     <div id="innerA"><table>
       <thead><tr><th>Month</th><th>Nights</th><th>Weekdays</th><th>Accommodation</th><th>Meals</th><th>Travel</th><th>Motorcycle</th><th>Monthly Total</th><th>Per Person</th></tr></thead>
       <tbody id="ciTbA"></tbody>
-      <tfoot><tr><td>Total</td><td>92</td><td>66</td><td id="ciAfAc">—</td><td id="ciAfMe">—</td><td id="ciAfTr">—</td><td id="ciAfMo">—</td><td id="ciAfTo">—</td><td id="ciAfPe">—</td></tr></tfoot>
+      <tfoot><tr><td>Total</td><td id="ciAfNights">92</td><td id="ciAfWd">66</td><td id="ciAfAc">—</td><td id="ciAfMe">—</td><td id="ciAfTr">—</td><td id="ciAfMo">—</td><td id="ciAfTo">—</td><td id="ciAfPe">—</td></tr></tfoot>
     </table></div>
     <div id="innerB" style="display:none"><table>
       <thead><tr><th>Month</th><th>Nights</th><th>Weekdays</th><th>Accommodation</th><th>Meals</th><th>Travel</th><th>Motorcycle</th><th>Monthly Total</th><th>Per Person</th></tr></thead>
       <tbody id="ciTbB"></tbody>
-      <tfoot><tr><td>Total</td><td>66</td><td>66</td><td id="ciBfAc">—</td><td id="ciBfMe">—</td><td id="ciBfTr">—</td><td id="ciBfMo">—</td><td id="ciBfTo">—</td><td id="ciBfPe">—</td></tr></tfoot>
+      <tfoot><tr><td>Total</td><td id="ciBfNights">66</td><td id="ciBfWd">66</td><td id="ciBfAc">—</td><td id="ciBfMe">—</td><td id="ciBfTr">—</td><td id="ciBfMo">—</td><td id="ciBfTo">—</td><td id="ciBfPe">—</td></tr></tfoot>
     </table></div>
     <div id="innerD" style="display:none"><table>
       <thead><tr><th>Month</th><th>Accommodation Δ</th><th>Meals Δ</th><th>Travel Δ</th><th>Motorcycle Δ</th><th>Net Saving (B cheaper by)</th></tr></thead>
@@ -569,11 +609,37 @@
 </div>
 
 <script>
-const MONTHS = [
-  { name:'June 2026',   aN:30, bN:22, wd:22, bT:8  },
-  { name:'July 2026',   aN:31, bN:22, wd:23, bT:9  },
-  { name:'August 2026', aN:31, bN:22, wd:21, bT:9  },
-];
+// Dynamic month computation from date pickers
+function computeMonths(){
+  const cfg=[
+    {idPfx:'jun', name:'June 2026'},
+    {idPfx:'jul', name:'July 2026'},
+    {idPfx:'aug', name:'August 2026'},
+  ];
+  return cfg.map(c=>{
+    const sv=document.getElementById('d_'+c.idPfx+'_s').value;
+    const ev=document.getElementById('d_'+c.idPfx+'_e').value;
+    if(!sv||!ev) return {name:c.name,aN:0,bN:0,wd:0,bT:0,fri:0,sun:0};
+    const start=new Date(sv+'T00:00:00');
+    const end  =new Date(ev+'T00:00:00');
+    if(end<start) return {name:c.name,aN:0,bN:0,wd:0,bT:0,fri:0,sun:0};
+    let aN=0,bN=0,wd=0,fri=0,sun=0;
+    const d=new Date(start);
+    while(d<=end){
+      const dow=d.getDay(); // 0=Sun,1=Mon,...,6=Sat
+      aN++;                              // every night = Plan A night
+      if(dow!==5&&dow!==6) bN++;        // Sun–Thu nights = Plan B stays in Hualien
+      if(dow>=1&&dow<=5)   wd++;        // Mon–Fri = weekday (meals)
+      if(dow===5) fri++;                // Friday departure
+      if(dow===0) sun++;                // Sunday return
+      d.setDate(d.getDate()+1);
+    }
+    // Update night badge in controls
+    const badge=document.getElementById('nights_'+c.idPfx);
+    if(badge) badge.textContent=aN;
+    return {name:c.name, aN, bN, wd, bT:fri+sun, fri, sun};
+  });
+}
 const PAX=2, MEAL=600;
 let bikes=2;
 let charts={aBar:null,aDough:null,bBar:null,bDough:null,cBar:null,cSav:null};
@@ -615,6 +681,7 @@ function showInner(t){
 }
 
 function update(){
+  const MONTHS=computeMonths();
   const accom=parseInt(document.getElementById('sAccom').value);
   const train=parseInt(document.getElementById('sTrain').value);
   const moto =parseInt(document.getElementById('sMoto').value);
@@ -670,6 +737,12 @@ function update(){
     tbD+=diffRow;ciTbD+=diffRow;
   });
 
+  // ── Derived totals ──
+  const totalAN=MONTHS.reduce((s,m)=>s+m.aN,0);
+  const totalBN=MONTHS.reduce((s,m)=>s+m.bN,0);
+  const totalWD=MONTHS.reduce((s,m)=>s+m.wd,0);
+  const totalBT=MONTHS.reduce((s,m)=>s+m.bT,0);
+
   // ── DOM updates ──
   // Plan A page
   document.getElementById('tbA').innerHTML=tbA;
@@ -679,7 +752,12 @@ function update(){
   document.getElementById('aTravel').innerHTML=fmt(aTTr).replace('NT$','')+'<span>NTD</span>';
   document.getElementById('aMoto').innerHTML=K(aTMo)+'<span>NTD</span>';
   document.getElementById('aAccomSub').textContent='@ '+accom.toLocaleString()+'/pax/night';
-  document.getElementById('aMotoSub').textContent=bikes+' bike'+(bikes>1?'s':'')+' · 92 days';
+  document.getElementById('aMotoSub').textContent=bikes+' bike'+(bikes>1?'s':'')+' · '+totalAN+' days';
+  document.getElementById('aSecHdr').textContent='Budget Summary — Plan A (Stay All Month, '+totalAN+' nights)';
+  document.getElementById('aSubNights').textContent=totalAN+' nights · 3 months';
+  document.getElementById('aSubWd').textContent=totalWD+' weekdays · 2 pax';
+  document.getElementById('afNights').textContent=totalAN;
+  document.getElementById('afWd').textContent=totalWD;
   document.getElementById('aRT').textContent='NT$'+(train*2).toLocaleString();
   ['Ac','Me','Tr','Mo','To','Pe'].forEach(k=>{
     const el=document.getElementById('af'+k);
@@ -694,10 +772,23 @@ function update(){
   document.getElementById('bTravel').innerHTML=K(bTTr)+'<span>NTD</span>';
   document.getElementById('bMoto').innerHTML=K(bTMo)+'<span>NTD</span>';
   document.getElementById('bAccomSub').textContent='@ '+accom.toLocaleString()+'/pax · Sun–Thu';
-  document.getElementById('bMotoSub').textContent=bikes+' bike'+(bikes>1?'s':'')+' · 22d/mo';
-  document.getElementById('bTrJun').textContent=fmt(PAX*8*train);
-  document.getElementById('bTrJul').textContent=fmt(PAX*9*train);
-  document.getElementById('bTrAug').textContent=fmt(PAX*9*train);
+  document.getElementById('bMotoSub').textContent=bikes+' bike'+(bikes>1?'s':'')+' · weekdays only';
+  document.getElementById('bSecHdr').textContent='Budget Summary — Plan B (Weekend Home, '+totalBN+' nights)';
+  document.getElementById('bSubNights').textContent=totalBN+' nights · 3 months';
+  document.getElementById('bSubTrips').textContent=totalBT+' one-way trips/pax';
+  document.getElementById('bfNights').textContent=totalBN;
+  document.getElementById('bfWd').textContent=totalWD;
+  // Plan B train cost + detail per month
+  document.getElementById('bTrJun').textContent=fmt(PAX*MONTHS[0].bT*train);
+  document.getElementById('bTrJul').textContent=fmt(PAX*MONTHS[1].bT*train);
+  document.getElementById('bTrAug').textContent=fmt(PAX*MONTHS[2].bT*train);
+  [0,1,2].forEach(i=>{
+    const m=MONTHS[i];
+    const monthEl=document.getElementById('bTrMonth'+i);
+    const detailEl=document.getElementById('bTrDetail'+i);
+    if(monthEl) monthEl.textContent=m.name;
+    if(detailEl) detailEl.innerHTML=m.fri+' Fri out + '+m.sun+' Sun back<br>= '+m.bT+' one-way trips/person';
+  });
   ['Ac','Me','Tr','Mo','To','Pe'].forEach(k=>{
     const el=document.getElementById('bf'+k);
     if(el) el.textContent=fmt({Ac:bTAc,Me:bTMe,Tr:bTTr,Mo:bTMo,To:bG,Pe:bG/PAX}[k]);
@@ -707,6 +798,12 @@ function update(){
   document.getElementById('ciTbA').innerHTML=ciTbA;
   document.getElementById('ciTbB').innerHTML=ciTbB;
   document.getElementById('ciTbD').innerHTML=ciTbD;
+  document.getElementById('cANights').textContent=totalAN+' nights';
+  document.getElementById('cBNights').textContent=totalBN+' nights';
+  document.getElementById('ciAfNights').textContent=totalAN;
+  document.getElementById('ciAfWd').textContent=totalWD;
+  document.getElementById('ciBfNights').textContent=totalBN;
+  document.getElementById('ciBfWd').textContent=totalWD;
   ['ciAf','ciBf'].forEach((pre,pi)=>{
     const vals=pi===0?{Ac:aTAc,Me:aTMe,Tr:aTTr,Mo:aTMo,To:aG,Pe:aG/PAX}:{Ac:bTAc,Me:bTMe,Tr:bTTr,Mo:bTMo,To:bG,Pe:bG/PAX};
     ['Ac','Me','Tr','Mo','To','Pe'].forEach(k=>{const el=document.getElementById(pre+k);if(el)el.textContent=fmt(vals[k]);});
